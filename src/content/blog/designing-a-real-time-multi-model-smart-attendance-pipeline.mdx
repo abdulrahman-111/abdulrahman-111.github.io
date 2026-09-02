@@ -1,0 +1,144 @@
+---
+title: Designing a Real-Time Multi-Model Smart Attendance Pipeline
+description: How to coordinate vision models, a responsive desktop UI, and durable local records without hiding latency or uncertainty.
+published: 2026-09-01
+tags:
+  - Computer Vision
+  - TensorFlow
+  - OpenCV
+  - PySide6
+  - SQLite
+  - ML Systems
+category: ml-systems
+draft: false
+---
+
+Putting several models behind one camera does not automatically create one coherent application. Face recognition, attention monitoring, and emotion analysis answer different questions. They may consume the same frame, but they have different preprocessing, latency, output labels, and evaluation metrics. A desktop interface and a database add two more clocks: what the user currently sees and what the system has durably recorded.
+
+The Smart Attendance System project provides a concrete reference: OpenCV and TensorFlow support a real-time vision workflow, the model set includes PCA with SVM and EfficientNetB2, PySide6 provides the interface, and SQLite provides persistence. The engineering problem explored here is how to connect those parts without pretending every result arrives at the same time or carries the same certainty. This is a design analysis, not a claim of production-scale operation.
+
+## Define separate contracts for separate model questions
+
+The first design decision is to resist a single “analysis result” object. Identity, attention, and emotion should remain separate signals with their own timestamps and status.
+
+```python
+from dataclasses import dataclass
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
+
+@dataclass(frozen=True)
+class InferenceResult(Generic[T]):
+    frame_id: int
+    captured_at: float
+    model_name: str
+    value: T | None
+    status: str
+```
+
+This illustrative structure records which frame produced an output and whether the model succeeded. A face identity from frame 410 should not silently combine with an emotion label from frame 392 simply because both are the most recent values.
+
+The model contract should also preserve the meaning of “no result.” No face detected, model unavailable, low-confidence output, and a processing error are different states. Flattening them all into `None` makes the UI simpler only by making diagnosis harder.
+
+## Keep frame ownership and backpressure explicit
+
+A common failure pattern is to let every model read independently from the camera. That creates competing capture loops and makes it difficult to know whether outputs refer to comparable moments. A single capture owner can assign a monotonic frame identifier, then distribute work to model-specific consumers.
+
+Real-time does not mean “process every frame regardless of cost.” If inference is slower than capture, an unbounded queue increases memory use and produces increasingly stale results. For a live interface, processing the newest available frame is often more useful than eventually processing every old one.
+
+A bounded handoff can make that policy explicit:
+
+```python
+from queue import Empty, Full, Queue
+
+latest_frames: Queue[tuple[int, object]] = Queue(maxsize=1)
+
+def publish_latest(frame_id: int, frame: object) -> None:
+    try:
+        latest_frames.put_nowait((frame_id, frame))
+    except Full:
+        try:
+            latest_frames.get_nowait()
+        except Empty:
+            pass
+        latest_frames.put_nowait((frame_id, frame))
+```
+
+This is an illustrative scheduling pattern, not repository code. Dropping stale frames trades completeness for freshness. That trade is appropriate only when the application records the policy and does not later interpret skipped frames as negative observations.
+
+Different models can also run at different cadences. Face detection may gate more expensive work; identity may not need recomputation while a stable track remains valid; attention and emotion outputs may use their own update policy. The exact cadence should come from measured latency and task needs, not an invented universal frame rate.
+
+## Separate UI work from inference work
+
+PySide6 expects interface updates to follow its event model. Running expensive OpenCV or TensorFlow work directly in the UI callback risks freezing controls and video display. Moving inference work away from the UI thread keeps the interface responsive, but it introduces synchronization requirements.
+
+The UI should receive immutable result messages and decide whether they are still current. A simple acceptance rule can reject outputs older than the active frame window or outputs belonging to a previous attendance session. Widgets should not read shared model buffers while a worker is mutating them.
+
+Cancellation matters as well. Closing the application, switching sessions, or changing the camera should stop new work and allow current workers to finish or exit safely. Otherwise an old worker can write a result into a new UI state. A visible “model unavailable” state is better than leaving the last successful label on screen indefinitely.
+
+The interface is a presentation layer, not the authoritative attendance record. Showing an inferred identity or emotion does not mean a database transaction has committed.
+
+## Turn inference into a deliberate persistence transaction
+
+SQLite is well suited to a self-contained desktop application, but persistence should follow an explicit domain action. Raw frames and transient model updates do not all need to become attendance rows.
+
+A transaction boundary might validate the current session, associate the selected inference outputs, write the attendance event, and commit before the UI displays a durable-success state:
+
+```python
+def record_attendance(connection, event) -> None:
+    with connection:
+        connection.execute(
+            """
+            INSERT INTO attendance (person_id, observed_at, session_id)
+            VALUES (?, ?, ?)
+            """,
+            (event.person_id, event.observed_at, event.session_id),
+        )
+```
+
+The SQL is illustrative. The important part is the transaction scope and parameterized values. If the write fails, the application should keep the inference available for inspection while reporting that persistence did not succeed.
+
+Database access also needs one concurrency policy. Sharing a connection across worker threads without understanding the driver's rules creates intermittent failures. A dedicated persistence worker or clearly scoped connections can serialize writes and return success or failure events to the UI.
+
+## Read metrics according to the task they measure
+
+The reference project reports different metrics for different components. Project-reported attention accuracy is 95.30%. Project-reported face-recognition accuracy is 93.62%. Project-reported emotion F1 is 74.4%.
+
+Those values should not be placed in one unlabeled “system accuracy” field. Accuracy and F1 emphasize different behavior, and each result belongs to a different prediction task. Emotion F1 cannot be restated as emotion accuracy. A user-facing system should also distinguish an offline evaluation result from confidence on a particular live frame.
+
+Evaluation should follow the same boundaries as the architecture. Identity errors, attention errors, and emotion errors have different downstream consequences. End-to-end testing then asks an additional question: does the orchestrator attach a correct model output to the correct session and durable record?
+
+## Design for partial failure instead of a perfect frame
+
+A multi-model pipeline rarely fails as one unit. Useful failure cases include:
+
+- Camera acquisition stops while the UI remains open.
+- Face detection returns no region, so downstream inference has no valid input.
+- One model raises an error while the other model workers remain healthy.
+- Inference finishes after the user has switched sessions.
+- The UI is responsive, but the SQLite write fails.
+- The database commits, but the UI misses the confirmation event.
+- A queue grows and outputs become stale rather than fresh.
+- A model returns a label that is structurally valid but below the application's acceptance policy.
+
+Each case needs a state transition. For example, a missing face is not an exception; it can gate downstream work. A model crash is an exception and should be surfaced with the model name. A database failure should prevent a durable-success message. A stale result should be discarded based on frame or session identity, not displayed because it arrived last.
+
+Observability can remain modest and local: per-stage latency, queue depth, dropped-frame count, model error count, and database transaction outcomes are enough to expose many orchestration problems. The goal is diagnosis, not collecting every possible number.
+
+## Balance freshness, completeness, and resource use
+
+The central trade-off is a triangle:
+
+- **Freshness:** prefer recent frames and discard outdated work.
+- **Completeness:** process every observation for later review.
+- **Resource use:** bound CPU, memory, and database writes.
+
+A desktop attendance workflow will rarely maximize all three. A latest-frame queue supports a responsive display but is unsuitable if every frame is a required audit event. Persisting every inference improves traceability but increases storage and can encode noisy transient predictions as durable facts. Running all models on every frame increases compute demand and may make every output late.
+
+The right policy should be visible in code and documentation. Frame dropping, model cadence, result expiration, and persistence criteria are system behavior, not incidental performance tweaks.
+
+## Conclusion
+
+A real-time multi-model application succeeds when its boundaries are as carefully designed as its models. One component owns capture. Each inference task emits a typed, timestamped result. The UI consumes results without becoming the source of truth. SQLite records deliberate domain events inside explicit transactions.
+
+That structure does not remove uncertainty; it prevents uncertainty from leaking unnoticed between components. The result is a system that can say which model answered which question, for which frame, what the user saw, and whether anything was durably recorded.

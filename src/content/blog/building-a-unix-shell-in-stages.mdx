@@ -1,0 +1,183 @@
+---
+title: Building a Unix Shell in Stages
+description: A systems-programming guide to growing a C shell through parsing, built-ins, processes, redirection, variables, and environment handling.
+published: 2026-08-31
+tags:
+  - C
+  - Linux
+  - Processes
+  - File Descriptors
+  - Shells
+category: systems-programming
+draft: false
+---
+
+A shell is a compact interface over several operating-system contracts. The prompt suggests a loop—read a line, run a command, repeat—but the implementation quickly crosses process creation, program replacement, file descriptors, mutable shell state, and environment inheritance.
+
+Trying to implement all of that in one pass makes failures difficult to locate. A staged project such as Road to My Own Shell uses the progression Femto → Pico → Nano → Micro to keep the learning surface controlled. This article develops the same engineering idea: build one boundary at a time, make ownership explicit, and only then compose it into a larger command loop. The examples are illustrative and do not claim production-shell completeness.
+
+## Begin with a loop whose failures are visible
+
+The smallest useful shell loop has four responsibilities:
+
+1. Read a complete command line.
+2. Parse it into a representation the executor understands.
+3. Choose built-in or external execution.
+4. Report status and release resources before prompting again.
+
+Even this small loop needs policies. End-of-file should exit cleanly. An interrupted read should not be confused with end-of-input. An empty line should produce another prompt rather than an invalid execution attempt. Input buffers need one clear owner.
+
+A compact outline looks like this:
+
+```c
+for (;;) {
+    char *line = read_command();
+    if (line == NULL) {
+        break;
+    }
+
+    struct command cmd = parse_command(line);
+    int status = execute_command(&cmd);
+
+    free_command(&cmd);
+    free(line);
+    remember_status(status);
+}
+```
+
+The functions hide detail, but the ownership order is visible. The parsed command cannot outlive the input unless it owns copies of the required tokens. Every early return inside parsing or execution must preserve the cleanup contract.
+
+## Parse structure before trying to execute it
+
+Splitting on spaces is enough for a first experiment, but redirection and variables require structure. The executor should not rediscover syntax by scanning raw strings. A parsed command can instead distinguish arguments from redirection operations and preserve their order where semantics require it.
+
+```c
+struct redirection {
+    int target_fd;
+    enum redirect_kind kind;
+    char *path;
+};
+
+struct command {
+    char **argv;
+    size_t argc;
+    struct redirection *redirects;
+    size_t redirect_count;
+};
+```
+
+This representation is illustrative. Its design principle is that parsing produces validated execution inputs. Missing filenames, unsupported operators, and allocation failures should stop before `fork()`.
+
+Quoting, escaping, pipelines, command substitution, and job control add substantial grammar and state. A staged learning shell can omit them explicitly. An honest unsupported-syntax error is better than accepting input and executing a surprising command.
+
+## Run stateful built-ins in the shell process
+
+External commands belong in child processes; stateful built-ins often do not. If a `cd`-like command runs in a child, the child changes directory and then exits, leaving the shell in the original directory. The same issue applies to shell variables and environment updates.
+
+That creates a dispatch boundary:
+
+```c
+if (is_builtin(cmd->argv[0])) {
+    return run_builtin(cmd);
+}
+
+return run_external(cmd);
+```
+
+Built-ins need validated argument counts and useful status codes. They also need careful redirection handling. Because they execute in the parent, applying `dup2()` directly can permanently change the shell's own standard input or output. A safe built-in path saves the affected descriptors, applies temporary redirections, runs the built-in, and restores the original descriptors on every success and error path.
+
+The simpler alternative—run every built-in in a child—reduces restoration work but breaks persistent shell state. The correct choice follows the command's semantics, not a preference for one execution path.
+
+## Use fork, exec, and wait as separate transitions
+
+Launching an external command is not one operation. `fork()` duplicates the process, `execvp()` replaces the child program, and `waitpid()` lets the parent collect status and avoid leaving a zombie.
+
+```c
+pid_t pid = fork();
+
+if (pid < 0) {
+    perror("fork");
+    return 1;
+}
+
+if (pid == 0) {
+    execvp(cmd->argv[0], cmd->argv);
+    perror("execvp");
+    _exit(127);
+}
+
+int child_status;
+if (waitpid(pid, &child_status, 0) < 0) {
+    perror("waitpid");
+    return 1;
+}
+```
+
+The child calls `_exit()` after `execvp()` fails so it does not return into the shell loop or flush inherited buffered output as if it were the parent. The parent must interpret `child_status` with the wait-status macros rather than assuming it is already an exit code.
+
+Failure paths are distinct. A failed `fork()` means no child exists. A failed `execvp()` happens in the child and needs a status the parent can observe. An interrupted `waitpid()` may be retryable. Keeping the transitions separate makes each case testable.
+
+## Treat redirection as file-descriptor surgery
+
+For an external command, redirection is normally applied in the child after `fork()` and before `execvp()`. The shell opens the requested file, duplicates that descriptor onto standard input or output, closes the no-longer-needed original, and only then replaces the process image.
+
+```c
+int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+if (fd < 0) {
+    perror(path);
+    _exit(1);
+}
+
+if (dup2(fd, STDOUT_FILENO) < 0) {
+    perror("dup2");
+    close(fd);
+    _exit(1);
+}
+
+close(fd);
+```
+
+The choice between truncation and append is semantic, not cosmetic. Input redirection needs read access; output creation needs an explicit mode; a failed `open()` must prevent `exec`. When multiple redirections are supported, their application order can change the result.
+
+Descriptor leaks are easy to miss because the shell may continue to work for many commands before reaching a limit. Every branch should make it possible to answer: which process owns this descriptor now, and where is it closed?
+
+## Keep shell variables distinct from the exported environment
+
+A shell can maintain internal variables without exporting all of them to child programs. Environment handling therefore needs two related operations: update the shell's state, and mark or copy selected values into the environment used for external execution.
+
+This distinction affects both behavior and memory ownership. Replacing a variable should release the old owned value. Removing a variable should update lookup results. Exporting a value should ensure the child receives the intended string, while a failed allocation must leave the previous state coherent.
+
+Expansion adds another boundary. If the parser stores raw tokens and expansion happens later, the executor needs to know whether a token is eligible for expansion. If expansion happens during parsing, quoting rules belong there. A staged shell should pick one small, documented policy rather than implement a partial mixture of established-shell behavior.
+
+Environment changes are a strong example of why built-ins execute in the parent. Modifying the child's environment after `fork()` affects that child and the program it executes, but it cannot travel backward into the shell process.
+
+## Test errors as deliberately as successful commands
+
+Interactive manual testing finds obvious problems but misses resource and status behavior. A staged shell benefits from small executable checks for each new boundary:
+
+- End-of-file exits without an extra prompt loop.
+- An empty command does not call `exec`.
+- An unknown command returns a visible nonzero status and the shell continues.
+- A stateful built-in changes the parent shell state.
+- Output redirection creates or truncates according to the selected operator.
+- A failed redirection does not run the target command.
+- The parent collects child status.
+- Repeated commands do not leak descriptors.
+- Shell-only variables remain unavailable to children until exported.
+- A failed parse frees partially allocated tokens.
+
+System-call failures can be difficult to force, but their branches still deserve inspection and targeted tests where possible. Tools that report invalid memory access and open descriptors can supplement behavior tests. The goal is not only “the output looked right”; it is that processes, buffers, and descriptors return to a known state after every command.
+
+## Know what the staged shell intentionally omits
+
+A learning shell gains clarity by narrowing scope. Pipelines require multiple children and careful closing of pipe ends. Job control requires process groups, terminal ownership, and signal coordination. Full quoting and expansion rules require a richer grammar. Command history and completion add interactive state.
+
+Those are natural later topics, but adding them prematurely can hide whether the core parent/child and descriptor model is sound. The trade-off is capability versus inspectability. A smaller shell with explicit limitations teaches more than a larger one whose edge cases are accidental.
+
+The Femto-to-Micro progression is valuable because it makes growth visible. A stage should end with a coherent model, not merely a longer source file. When a new responsibility arrives, it should earn a data structure and a failure policy rather than another conditional in the main loop.
+
+## Conclusion
+
+Building a shell in stages turns an intimidating interface into a sequence of operating-system contracts. Parsing owns syntax. Built-ins own persistent shell state. Child processes own external execution. Redirection rewires descriptors before execution. Variables and the exported environment follow deliberate lifetime rules.
+
+The lasting lesson is ownership. At every branch, know which process is running, which memory it owns, which descriptors are open, and which state should survive the command. Once those answers are explicit, the prompt loop becomes the simple part again.

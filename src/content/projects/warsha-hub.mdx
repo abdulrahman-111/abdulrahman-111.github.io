@@ -1,0 +1,72 @@
+---
+title: Warsha Hub
+summary: A collaborative educational social platform combining graph-based discovery, ranked feeds, Trie search, similarity methods, KNN recommendations, and local persistence.
+rank: 4
+featured: false
+period: Dec 2025–Jan 2026
+tags:
+  - Python
+  - PySide6
+  - SQLite
+  - Graph Algorithms
+  - Trie
+  - KNN
+  - Recommender Systems
+repoUrl: https://github.com/abdulrahman-111/Warsha_hub
+collaborative: true
+contribution:
+  - Designed and integrated the database layer.
+  - Implemented Trie-based username search.
+  - Implemented the KNN model and recommendation features.
+---
+
+## Context
+
+An educational social platform has to support both direct actions and discovery. Users need persistent profiles and relationships, fast username lookup, a ranked feed, follow suggestions, and a way to understand the graph that connects them. Each of those needs a different data structure or similarity view.
+
+Warsha Hub is a collaborative Python desktop project that combines a PySide6 interface with SQLite, graph algorithms, search, feed ranking, recommendations, and social-graph visualization. It also includes documented Huffman-related systems work. The project is a study in connecting classical data structures and machine-learning methods to user-facing features.
+
+## System capability
+
+The team system provides an educational social platform with persistent data and a PySide6 interface. It uses graph algorithms and social-graph visualization to represent connections, ranking logic for feeds, and a Trie for username search.
+
+Discovery features use Jaccard and cosine similarity alongside KNN follow recommendations. The repository also documents Huffman-related systems work. Together, these components show several ways of turning stored relationships and content signals into search and recommendation behavior.
+
+These are capabilities of the collaborative project. They are not a claim that I solely designed its entire architecture.
+
+## Architecture
+
+The platform has four useful conceptual layers:
+
+1. **Persistence:** SQLite stores the entities and relationships used by the application.
+2. **Direct retrieval:** Trie-based username search serves prefix-oriented lookup.
+3. **Ranking and recommendation:** feed ranking, Jaccard/cosine similarity, and KNN use different representations to order or suggest content and connections.
+4. **Interaction and explanation:** PySide6 presents workflows, while social-graph visualization exposes connection structure.
+
+Keeping direct search separate from recommendation is important. A Trie answers a known-prefix query; a similarity or KNN method estimates relevance from features or relationships. They solve different user needs and should have different fallback behavior.
+
+## Constraints and trade-offs
+
+SQLite keeps the application self-contained, but the schema must serve both transactional actions and graph-oriented reads. Denormalizing everything for recommendations would weaken consistency, while recomputing every similarity at interaction time could make the interface unresponsive. Clear queries and bounded feature preparation are therefore important.
+
+Similarity measures also encode different assumptions. Jaccard emphasizes set overlap, cosine similarity compares vector direction, and KNN depends on the selected feature space and distance behavior. None is universally correct; the platform must match each method to the signal it is intended to represent.
+
+Trie search trades additional in-memory structure for efficient prefix lookup. It also creates a synchronization concern: the index and SQLite data must agree when usernames change. Graph visualizations are useful for inspection, but they can become visually dense; they should support understanding rather than act as proof that a recommendation is correct.
+
+## Implementation
+
+Python connects the data and algorithm layers, PySide6 supplies the desktop interface, and SQLite provides persistence. The platform applies graph algorithms to social connections, ranks feed items, uses Trie lookup for usernames, and combines Jaccard/cosine similarity with KNN recommendation features.
+
+The implementation benefits from explicit boundaries between durable records and derived structures. SQLite remains the durable source, while the Trie, similarity representations, recommendation outputs, and graph view can be rebuilt or refreshed from persisted data. The documented Huffman-related systems work remains part of the wider project without being assigned to my personal scope here.
+
+## My contribution
+
+My verified contribution was the database design and integration, Trie-based username search, the KNN model, and recommendation features.
+
+Feed ranking, graph algorithms, social-graph visualization, similarity methods, the PySide6 application, and the documented Huffman-related work describe the team system as a whole. I do not claim sole authorship of those components or of the complete architecture.
+
+## Outcomes and learning
+
+Warsha Hub demonstrates how persistent relational data can support direct search, graph exploration, ranking, and recommendation in the same application. The most transferable lesson is to keep canonical data separate from derived indexes and predictions.
+
+It also makes algorithm choice concrete. A user-facing label such as “recommended” can hide very different mechanics; documenting whether a result came from prefix search, set overlap, vector similarity, or nearest neighbors makes behavior easier to test and explain.
