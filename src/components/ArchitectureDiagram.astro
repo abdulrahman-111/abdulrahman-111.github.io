@@ -82,7 +82,10 @@ const diagram = diagrams[projectId];
 
 {
   diagram && (
-    <figure class:list={['architecture', `architecture--${diagram.mode}`]}>
+    <figure
+      class:list={['architecture', `architecture--${diagram.mode}`]}
+      style={`--architecture-columns: ${diagram.nodes.length}`}
+    >
       <figcaption>{diagram.label}</figcaption>
       <ol aria-label={diagram.label}>
         {diagram.nodes.map((node, index) => (
@@ -122,6 +125,10 @@ const diagram = diagrams[projectId];
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  .architecture--sequence ol {
+    grid-template-columns: repeat(var(--architecture-columns), minmax(0, 1fr));
   }
 
   .architecture li {
@@ -164,6 +171,10 @@ const diagram = diagrams[projectId];
   }
 
   @media (max-width: 47.99rem) {
+    .architecture--sequence ol {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     .architecture--sequence li:not(:last-child)::after {
       right: 50%;
       top: auto;
