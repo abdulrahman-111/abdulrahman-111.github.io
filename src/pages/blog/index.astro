@@ -1,0 +1,125 @@
+---
+import { getCollection } from 'astro:content';
+import ContactCta from '../../components/ContactCta.astro';
+import PostCard from '../../components/PostCard.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import TagList from '../../components/TagList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedEntries, slugify } from '../../lib/content';
+
+const posts = getPublishedEntries(await getCollection('blog'), import.meta.env.PROD);
+const categories = [...new Set(posts.map((post) => post.data.category))];
+const tags = [...new Set(posts.flatMap((post) => post.data.tags))].sort((first, second) =>
+  first.localeCompare(second),
+);
+const categoryLabels: Record<string, string> = {
+  devops: 'DevOps',
+  'ml-systems': 'ML Systems',
+  'systems-programming': 'Systems Programming',
+};
+---
+
+<BaseLayout
+  title="Writing | Abdulrahman Gomaa Hassan"
+  description="Practical writing about ML systems, infrastructure, and systems programming."
+>
+  <section class="blog page-shell">
+    <SectionHeader
+      eyebrow="Engineering notes"
+      title="Design decisions with their trade-offs intact."
+      description="Filter with ordinary links: every category and tag has its own prerendered route and remains available without JavaScript."
+    />
+
+    <nav class="blog-filters" aria-label="Filter articles">
+      <div>
+        <p>Categories</p>
+        <ul>
+          <li><a aria-current="page" href="/blog/">All articles</a></li>
+          {
+            categories.map((category) => (
+              <li>
+                <a href={`/blog/category/${slugify(category)}/`}>
+                  {categoryLabels[category] ?? category}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <p>Tags</p>
+        <TagList tags={tags} linked />
+      </div>
+    </nav>
+
+    <div class="blog__grid">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+
+    <ContactCta />
+  </section>
+</BaseLayout>
+
+<style>
+  .blog {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+  }
+
+  .blog-filters {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .blog-filters p {
+    margin: 0 0 var(--space-2);
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .blog-filters ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .blog-filters a {
+    display: inline-flex;
+    padding: 0.22rem 0.5rem;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  .blog-filters a:hover,
+  .blog-filters a[aria-current='page'] {
+    border-color: var(--color-cyan);
+    color: var(--color-cyan-strong);
+  }
+
+  .blog__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 50rem) {
+    .blog-filters {
+      grid-template-columns: minmax(15rem, 0.6fr) minmax(0, 1.4fr);
+    }
+  }
+</style>

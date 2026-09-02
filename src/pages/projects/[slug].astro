@@ -1,0 +1,155 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import ArchitectureDiagram from '../../components/ArchitectureDiagram.astro';
+import ContactCta from '../../components/ContactCta.astro';
+import TagList from '../../components/TagList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<BaseLayout
+  title={`${project.data.title} | Abdulrahman Gomaa Hassan`}
+  description={project.data.summary}
+  {...project.data.image ? { image: project.data.image } : {}}
+  type="article"
+>
+  <article class="project-detail">
+    <header class="project-hero page-shell">
+      <div class="project-hero__meta">
+        <span>Rank {String(project.data.rank).padStart(2, '0')}</span>
+        <span>{project.data.period}</span>
+        <span>{project.data.collaborative ? 'Collaborative system' : 'Solo system'}</span>
+      </div>
+      <h1>{project.data.title}</h1>
+      <p>{project.data.summary}</p>
+      <TagList tags={project.data.tags} />
+      <div class="project-hero__actions">
+        <a class="button-link" href={project.data.repoUrl}>View repository</a>
+        {
+          project.data.demoUrl && (
+            <a class="button-link button-link--secondary" href={project.data.demoUrl}>
+              View demo
+            </a>
+          )
+        }
+      </div>
+    </header>
+
+    <section class="project-visual page-shell" aria-label="Project architecture">
+      {
+        project.data.image ? (
+          <img src={project.data.image} alt={`${project.data.title} project view`} />
+        ) : (
+          <ArchitectureDiagram projectId={project.id} />
+        )
+      }
+    </section>
+
+    <div class="project-prose page-shell">
+      <Content />
+    </div>
+
+    <div class="project-contact page-shell">
+      <ContactCta />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .project-detail {
+    padding-block: var(--space-6);
+  }
+
+  .project-hero {
+    max-width: 64rem;
+  }
+
+  .project-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+  }
+
+  .project-hero__meta span:not(:first-child)::before {
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+    content: '//';
+  }
+
+  .project-hero h1 {
+    max-width: 18ch;
+    margin: var(--space-3) 0;
+    font-size: clamp(2.5rem, 8vw, 5.5rem);
+    letter-spacing: -0.05em;
+    line-height: 0.98;
+  }
+
+  .project-hero > p {
+    max-width: 50rem;
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-muted);
+    font-size: 1.08rem;
+  }
+
+  .project-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .project-visual {
+    margin-top: var(--space-6);
+  }
+
+  .project-visual img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--color-border);
+  }
+
+  .project-prose {
+    max-width: 50rem;
+    margin-top: var(--space-6);
+  }
+
+  .project-prose :global(h2) {
+    margin: var(--space-6) 0 var(--space-3);
+    scroll-margin-top: var(--space-4);
+    font-size: clamp(1.65rem, 4vw, 2.25rem);
+    line-height: 1.2;
+  }
+
+  .project-prose :global(p),
+  .project-prose :global(li) {
+    color: var(--color-text-muted);
+  }
+
+  .project-prose :global(strong) {
+    color: var(--color-text);
+  }
+
+  .project-contact {
+    margin-top: var(--space-6);
+  }
+</style>

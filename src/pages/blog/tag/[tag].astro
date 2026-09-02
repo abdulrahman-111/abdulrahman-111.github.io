@@ -1,0 +1,65 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import PostCard from '../../../components/PostCard.astro';
+import SectionHeader from '../../../components/SectionHeader.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPublishedEntries, slugify } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const posts = getPublishedEntries(await getCollection('blog'), import.meta.env.PROD);
+  const tagLabels = [...new Set(posts.flatMap((post) => post.data.tags))];
+
+  return tagLabels.map((tag) => ({
+    params: { tag: slugify(tag) },
+    props: {
+      tag,
+      posts: posts.filter((post) => post.data.tags.includes(tag)),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`${tag} articles | Abdulrahman Gomaa Hassan`}
+  description={`Articles tagged ${tag}.`}
+>
+  <section class="filtered page-shell">
+    <a class="filtered__back" href="/blog/">← All articles</a>
+    <SectionHeader
+      eyebrow="Tag filter"
+      title={tag}
+      description={`${posts.length} ${posts.length === 1 ? 'article' : 'articles'} in this static filter.`}
+    />
+    <div class="filtered__grid">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .filtered {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-6);
+  }
+
+  .filtered__back {
+    width: fit-content;
+    color: var(--color-cyan-strong);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+
+  .filtered__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+    gap: var(--space-3);
+  }
+</style>

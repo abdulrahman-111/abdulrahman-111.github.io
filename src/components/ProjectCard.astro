@@ -1,0 +1,88 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import TagList from './TagList.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+---
+
+<article class="project-card">
+  <div class="project-card__meta">
+    <span>{String(project.data.rank).padStart(2, '0')}</span>
+    <span>{project.data.period}</span>
+    <span>{project.data.collaborative ? 'Collaborative' : 'Solo'}</span>
+  </div>
+  <h2><a href={`/projects/${project.id}/`}>{project.data.title}</a></h2>
+  <p>{project.data.summary}</p>
+  {
+    project.data.collaborative && (
+      <p class="project-card__contribution">
+        <strong>Contribution:</strong> {project.data.contribution.join(' ')}
+      </p>
+    )
+  }
+  <TagList tags={project.data.tags} />
+  <a class="project-card__link" href={`/projects/${project.id}/`}>
+    Read case study <span aria-hidden="true">→</span>
+  </a>
+</article>
+
+<style>
+  .project-card {
+    display: grid;
+    gap: var(--space-3);
+    min-height: 100%;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .project-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+  }
+
+  .project-card__meta span:not(:first-child)::before {
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+    content: '//';
+  }
+
+  .project-card h2 {
+    margin: 0;
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    line-height: 1.15;
+  }
+
+  .project-card h2 a {
+    text-decoration: none;
+  }
+
+  .project-card > p {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  .project-card .project-card__contribution {
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--color-amber);
+    color: var(--color-text);
+    font-size: 0.9rem;
+  }
+
+  .project-card__link {
+    align-self: end;
+    color: var(--color-cyan-strong);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+</style>
