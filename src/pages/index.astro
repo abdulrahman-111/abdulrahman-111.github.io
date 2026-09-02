@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../data/site';
+---
+
+<BaseLayout title={siteConfig.name} description={siteConfig.description}>
+  <section class="hero">
+    <div class="page-shell hero__inner">
+      <p class="eyebrow">ML systems // infrastructure</p>
+      <h1>{siteConfig.tagline}</h1>
+      <p class="hero__summary">
+        A concise view of engineering work across intelligent systems and the infrastructure that
+        supports them.
+      </p>
+      <div class="hero__actions">
+        <a class="button-link" href="/projects/">View projects</a>
+        <a class="button-link button-link--secondary" href="/resume/">View resume</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="status-strip" aria-label="Systems status">
+    <div class="page-shell status-strip__inner">
+      <div>
+        <p class="status-label">Operating mode</p>
+        <p>Static delivery</p>
+      </div>
+      <div>
+        <p class="status-label">Focus</p>
+        <p>ML systems + infrastructure</p>
+      </div>
+      <div>
+        <p class="status-label">Location</p>
+        <p>{siteConfig.location}</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(var(--space-6), 12vw, 9rem);
+  }
+
+  .hero__inner {
+    max-width: 60rem;
+  }
+
+  h1 {
+    max-width: 16ch;
+    margin: var(--space-3) 0 var(--space-4);
+    font-size: clamp(2.7rem, 8vw, 6rem);
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+  }
+
+  .hero__summary {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .status-strip {
+    border-block: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .status-strip__inner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  }
+
+  .status-strip__inner > div {
+    padding: var(--space-3);
+    border-right: 1px solid var(--color-border);
+  }
+
+  .status-strip p:not(.status-label) {
+    margin: 0.2rem 0 0;
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+  }
+</style>
