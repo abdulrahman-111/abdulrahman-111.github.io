@@ -24,6 +24,7 @@ export function slugify(value: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/&/g, ' and ')
+    .replace(/\+/g, ' plus ')
     .replace(/[’']/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');

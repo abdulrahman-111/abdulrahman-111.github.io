@@ -1,0 +1,291 @@
+---
+title: 'My Journey Learning Bash Scripting: From Zero to Command Creation'
+description: 'My progression from basic Bash syntax to reusable functions and a custom Linux command.'
+published: 2025-11-22
+tags: ['Linux', 'Bash', 'Shell Script']
+category: 'devops'
+sourceUrl: 'https://medium.com/@agofficial/my-journey-learning-bash-scripting-from-zero-to-command-creation-e2afd645db16'
+draft: false
+---
+
+When I first started learning Bash scripting, I didn’t imagine where it would take me. What began as simple `echo` commands evolved into building fully functional utilities that I could run from anywhere in my system. This is my story, and I’m sharing it as a complete tutorial to help you master Bash scripting.
+
+## The beginning: understanding the basics
+
+My journey started with the fundamentals. Before I could run any script, I had to understand file permissions. In Linux, a script needs execution permission to run.
+
+```bash
+chmod +x script.sh # Grant execute permission
+chmod 755 script.sh # Alternative method
+```
+
+Every Bash script begins with a shebang line—a magical header that tells the kernel which shell to use:
+
+```bash
+#!/bin/bash
+# Comments start with # symbols
+```
+
+One of the first lessons that stuck with me was understanding how quoting works. I learned the hard way that single quotes and double quotes behave differently:
+
+```bash
+#!/bin/bash
+echo "Hello $USER"      # Outputs: Hello [your_username]
+echo 'Hello $USER'      # Outputs: Hello $USER
+```
+
+Double quotes allow variable expansion, while single quotes treat everything literally. This simple concept became crucial later when handling sensitive data.
+
+## Taking input: the interactive script
+
+My confidence grew when I learned how to interact with users. The `read` command opened new possibilities:
+
+```bash
+#!/bin/bash
+echo "Please enter your username:"
+read username
+echo "Welcome $username"
+```
+
+That moment felt like magic—my script could now have conversations with users!
+
+## My first real project: a user-management script
+
+With basic knowledge under my belt, I decided to tackle something practical: a user-management utility. This was ambitious, but I broke it down into manageable pieces.
+
+### Creating users with passwords
+
+```bash
+#!/bin/bash
+echo "Please enter username:"
+read username
+
+useradd -md /home/$username $username
+
+echo "Enter password:"
+read -s password    # -s flag hides the password input
+
+echo "$username:$password" | chpasswd
+echo "User created successfully"
+```
+
+The `read -s` flag was a game changer—it hides password input while typing.
+
+### Checking if a user exists
+
+Before creating or deleting users, I needed to verify their existence. This introduced me to conditional logic:
+
+```bash
+#!/bin/bash
+echo "Enter username:"
+read username
+
+grep -w "^$username" /etc/passwd >/dev/null
+
+if [ $? -eq 0 ]
+then
+    echo "User exists"
+else
+    echo "User does not exist"
+fi
+```
+
+The `$?` variable holds the exit status of the last command—0 means success, and anything else means failure.
+
+### Building more functionality
+
+As my confidence grew, I added delete and list functions:
+
+```bash
+#!/bin/bash
+# Delete user
+grep -w "^$username" /etc/passwd >/dev/null
+if [ $? -eq 0 ]
+then
+    userdel -r $username
+    echo "User deleted successfully"
+fi
+
+# List users
+tail -n 10 /etc/passwd | cut -f1 -d':'
+```
+
+## Organizing with functions and case statements
+
+Instead of writing everything in one massive script, I discovered functions. This changed everything:
+
+```bash
+#!/bin/bash
+
+function user_add {
+    echo "Adding new user..."
+    # add user logic here
+}
+
+function user_del {
+    echo "Deleting user..."
+    # delete user logic here
+}
+
+function users_list {
+    echo "Listing users..."
+    # list users logic here
+}
+
+# Use a case statement for cleaner logic
+read -p "Choose (1=add, 2=delete, 3=list): " choice
+
+case $choice in
+    1) user_add ;;
+    2) user_del ;;
+    3) users_list ;;
+    *) echo "Invalid choice" ;;
+esac
+```
+
+Case statements replaced nested `if`-`else` statements, making the code much more readable.
+
+## Scaling up: processing files with loops
+
+One day, I needed to create multiple users from a CSV file. This is where loops became essential:
+
+```bash
+#!/bin/bash
+
+# Suppose we have users.csv with format: username,groupname
+for line in $(grep -v "username" users.csv)
+do
+    username=$(echo "$line" | cut -f1 -d',')
+    groupname=$(echo "$line" | cut -f2 -d',')
+
+    # Create group if it doesn't exist
+    grep -w "^$groupname" /etc/group >/dev/null
+    if [ $? -ne 0 ]
+    then
+        groupadd "$groupname"
+    fi
+
+    useradd -md /home/"$username" "$username" -g "$groupname"
+done
+```
+
+Processing files with loops transformed my scripts from single-task tools into powerful batch-processing utilities.
+
+## The big leap: making a command
+
+The breakthrough moment came when I realized I could make my scripts accessible as system commands. No more typing full paths! Here’s what I did:
+
+First, I organized my functions in separate module files:
+
+```bash
+# /home/abdo/linux_scripts/modules/func1
+user_add() {
+    username="$1"
+    grep -w "^$username" /etc/passwd >/dev/null
+    if [ $? -eq 0 ]
+    then
+        echo "User already exists"
+    else
+        useradd -md /home/"$username" "$username"
+        read -sp "Enter password: " password
+        echo "$username:$password" | chpasswd
+        echo "User created successfully"
+    fi
+}
+```
+
+Then, I created my main command script with options:
+
+```bash
+#!/bin/bash
+source /home/abdo/linux_scripts/modules/func1
+source /home/abdo/linux_scripts/modules/func2
+source /home/abdo/linux_scripts/modules/func3
+
+show_help() {
+    cat << EOF
+User Command Utility
+Options:
+  -a <username>  Add a new user
+  -d <username>  Delete a user
+  -l <number>    List last N users
+  -h             Show this help message
+EOF
+}
+
+while getopts "ha:d:l:" opt
+do
+    case $opt in
+        a) user_add "$OPTARG" ;;
+        d) user_del "$OPTARG" ;;
+        l) users_list "$OPTARG" ;;
+        h) show_help ;;
+        \?) echo "Invalid option" ;;
+    esac
+done
+```
+
+## Making it permanent (the magic moment)
+
+Then came the magic. I made this script available system-wide by editing my `PATH`:
+
+```bash
+# Add this to /etc/profile for all users or ~/.bashrc for current user
+export PATH="$PATH:/home/abdo/linux_scripts/command/"
+```
+
+After this, I could run my command from anywhere:
+
+```bash
+$ user_command -a john
+$ user_command -d john
+$ user_command -l 5
+```
+
+## Making my script a normal command
+
+<figure>
+  <img
+    src="/blog/bash-user-command.webp"
+    alt="Terminal output after running the custom user command"
+    width="1024"
+    height="344"
+  />
+  <figcaption>Running the custom command from the terminal.</figcaption>
+</figure>
+
+That terminal screenshot you saw above? That was me running `user_command` from different directories and seeing it work perfectly. The feeling was incredible.
+
+## Debugging my mistakes
+
+Of course, I made plenty of mistakes along the way. I learned that Bash debugging is simple:
+
+```bash
+bash -x script.sh # Shows every command as it executes
+```
+
+This `-x` flag became my best friend when troubleshooting complex scripts.
+
+## Key lessons I learned
+
+- Start small—master the basics before building complex systems.
+- Test everything—especially scripts that modify system files.
+- Use functions—they make code reusable and readable.
+- Comments are gold—future you will thank present you.
+- Quote your variables—prevent unexpected word splitting with `"$variable"`.
+- Use proper permissions—`chmod +x` is not optional.
+- Organize with modules—separate concerns into different files.
+
+## Where this journey led
+
+Today, I don’t just write random scripts. I write utilities. I build tools that solve real problems. Bash scripting taught me that automation is powerful and that knowing how to wield it is a superpower.
+
+This journey from writing `echo "hello world"` to building functional command-line utilities took patience and practice. But every developer can follow this path. You don’t need to be a genius—just curious and willing to learn.
+
+## Your turn
+
+I hope this story and tutorial inspire you to start your Bash scripting journey. Pick a simple problem—maybe managing files, processing data, or automating repetitive tasks—and build something. Start small, make mistakes, learn from them, and gradually build more complex solutions.
+
+That’s how I did it. And now, I want to see what amazing things you’ll build.
+
+Happy scripting! 🚀

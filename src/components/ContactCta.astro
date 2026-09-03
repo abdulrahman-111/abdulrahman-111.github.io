@@ -1,17 +1,18 @@
+---
+import SocialLinks from './SocialLinks.astro';
+---
+
 <aside class="contact-cta" aria-labelledby="contact-cta-title">
   <div>
     <p class="eyebrow">Open channel</p>
     <h2 id="contact-cta-title">Have a systems problem worth discussing?</h2>
     <p>
-      I’m interested in ML systems, infrastructure, and engineering work with visible boundaries.
+      I’m interested in ML systems, infrastructure, and engineering work with clearly defined
+      boundaries.
     </p>
   </div>
   <div class="contact-cta__actions">
-    <a class="button-link" href="mailto:abdulrahman.gomaa.h05@gmail.com">Send an email</a>
-    <a
-      class="button-link button-link--secondary"
-      href="https://www.linkedin.com/in/abdulrahman-gomaa">LinkedIn</a
-    >
+    <SocialLinks ariaLabel="Contact options" />
   </div>
 </aside>
 

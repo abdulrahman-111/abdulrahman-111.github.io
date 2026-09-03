@@ -30,4 +30,9 @@ describe('content utilities', () => {
   it('normalizes titles into URL-safe slugs', () => {
     expect(slugify('  ML & AI — Systems: An Overview!  ')).toBe('ml-and-ai-systems-an-overview');
   });
+
+  it('keeps C and C++ tag routes distinct', () => {
+    expect(slugify('C')).toBe('c');
+    expect(slugify('C++')).toBe('c-plus-plus');
+  });
 });

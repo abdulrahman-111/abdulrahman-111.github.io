@@ -4,6 +4,7 @@ const representativeRoutes = [
   '/',
   '/projects/',
   '/blog/from-terraform-to-gitops/',
+  '/blog/my-journey-learning-bash-scripting/',
   '/certifications/',
 ] as const;
 const viewports = [
@@ -42,6 +43,70 @@ test('article code and tables remain contained with reduced motion', async ({ pa
     await page.locator('html').evaluate((element) => getComputedStyle(element).scrollBehavior),
   ).toBe('auto');
 });
+
+for (const viewport of viewports) {
+  test(`article and certificate images fit at ${viewport.width}×${viewport.height}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+
+    for (const [route, selector] of [
+      ['/blog/my-journey-learning-bash-scripting/', '.article-prose img'],
+      ['/certifications/', '.credential-card img'],
+    ] as const) {
+      await page.goto(route);
+      const images = page.locator(selector);
+      const imageCount = await images.count();
+      expect(imageCount, `${route} should contain testable media`).toBeGreaterThan(0);
+
+      for (let index = 0; index < imageCount; index += 1) {
+        const image = images.nth(index);
+        await image.scrollIntoViewIfNeeded();
+        await expect
+          .poll(() => image.evaluate((element) => (element as HTMLImageElement).naturalWidth > 0))
+          .toBe(true);
+      }
+
+      const measurements = await images.evaluateAll((elements) =>
+        elements.map((element) => {
+          const image = element as HTMLImageElement;
+          const box = image.getBoundingClientRect();
+          const parent = image.parentElement!.getBoundingClientRect();
+          return {
+            box: { left: box.left, right: box.right, width: box.width, height: box.height },
+            parent: { left: parent.left, right: parent.right, width: parent.width },
+            contentWidth: image.clientWidth,
+            contentHeight: image.clientHeight,
+            naturalWidth: image.naturalWidth,
+            naturalHeight: image.naturalHeight,
+          };
+        }),
+      );
+
+      for (const {
+        box,
+        parent,
+        contentWidth,
+        contentHeight,
+        naturalWidth,
+        naturalHeight,
+      } of measurements) {
+        expect(box.left).toBeGreaterThanOrEqual(parent.left - 0.5);
+        expect(box.right).toBeLessThanOrEqual(parent.right + 0.5);
+        expect(box.width).toBeLessThanOrEqual(parent.width + 0.5);
+        expect(Math.abs(contentWidth / contentHeight - naturalWidth / naturalHeight)).toBeLessThan(
+          0.02,
+        );
+      }
+
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+        ),
+      ).toBe(true);
+    }
+  });
+}
 
 test('all internal links found on the primary route families resolve', async ({
   page,

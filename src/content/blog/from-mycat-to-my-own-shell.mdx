@@ -1,0 +1,339 @@
+---
+title: 'From mycat to My Own Shell — a Comprehensive Story'
+description: 'The full story of progressing from a small file utility to a Unix shell implementation.'
+published: 2025-08-29
+tags: ['Linux', 'Shells', 'C', 'C++']
+category: 'systems-programming'
+sourceUrl: 'https://medium.com/@agofficial/from-mycat-to-my-own-shell-a-comprehensive-story-3cc98de52957'
+draft: false
+---
+
+How writing a single `cat` clone turned into a shell—and what I learned about system calls, debugging, and building tools that actually work.
+
+**TL;DR:** I built a set of tiny Linux utilities (including `mycat`) and used them as stepping stones to implement my own command-line shell. This post walks through the phases of that project, shows code snippets, explains bugs and how I fixed them, and reveals the effort and learning behind each milestone. The full project is on [GitHub](https://github.com/abdulrahman-111/Road-to-my-own-shell).
+
+---
+
+## Quick note
+
+This article is written from the perspective of a student and systems tinkerer. I used C and low-level Linux system calls.
+
+---
+
+## Why start with a tiny utility?
+
+When you look at the terminal and see commands like `ls`, `cat`, and `pwd`, it’s tempting to treat them as magic. Writing a single command is the fastest way to demystify the layer under the shell. A small utility has a tight scope: you get to learn how the kernel exposes files, how reads and writes work, and how programs accept arguments. From there, a shell that runs those utilities becomes an achievable next step.
+
+---
+
+## Project roadmap (high level)
+
+1. Implement tiny utilities (`mycat`, `mypwd`, `myecho`, etc.).
+2. Make them robust and POSIX-friendly (proper error handling, `argv` parsing, and return codes).
+3. Create a minimal shell loop that can run binaries.
+4. Add shell features: built-ins, I/O redirection, and job control.
+5. Iterate and fix bugs using tests and debugging tools.
+
+---
+
+## Phase 1—`mycat` (v0): first working prototype
+
+My first `mycat` was intentionally naive: a hard-coded path, the use of `open`, `read`, and `write`, and a celebratory `printf()` when it finished.
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+int main() {
+    int fd = open("/home/abdo/Desktop/test.txt", O_RDONLY);
+    if (fd < 0) {
+        perror("open");
+        exit(1);
+    }
+    char buffer[1000];
+    read(fd, buffer, 1000);
+    write(1, buffer, strlen(buffer)); // <-- this is wrong for binary data
+    close(fd);
+    printf("hi man, we do it!\n");
+    return 0;
+}
+```
+
+**What worked:** It printed a small test file when that file existed and had no NUL bytes.
+
+**What was wrong:**
+
+- Using `strlen()` on a raw buffer returned by `read()` is incorrect—`read()` does not append a NUL terminator, and binary files may contain `\0` bytes. That made the output truncated or caused undefined behavior.
+- The path was hard-coded.
+
+Immediate fix: use the return value from `read()` as the number of bytes to write back out. Use a loop to handle large files.
+
+```c
+ssize_t bytesRead;
+char buffer[4096];
+while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0) {
+    if (write(STDOUT_FILENO, buffer, bytesRead) != bytesRead) {
+        perror("write");
+        close(fd);
+        return 1;
+    }
+}
+```
+
+I also added `perror()` calls to print clear error messages when `open`, `read`, or `write` fails.
+
+---
+
+## Phase 2—`mycat` (v1): command-line usage and robustness
+
+I turned `mycat` into a program that accepts multiple file names from `argv[]`, like the real `cat`:
+
+```bash
+./mycat file1.txt file2.txt
+```
+
+Key changes:
+
+- Use `argc`/`argv` to iterate through files.
+- Use a 4 KB buffer for efficient I/O.
+- Properly handle `open()` errors for each file (`perror("open")` and `continue`).
+
+This phase taught me two practical rules:
+
+1. Always base output lengths on the return value of `read()`.
+2. Fail early for I/O errors, but keep the program usable for processing multiple inputs.
+
+---
+
+## Phase 3—other utilities and code hygiene
+
+I implemented several small utilities to exercise different system calls and behaviors:
+
+- `mypwd`—use `getcwd()`.
+- `myecho`—print arguments to standard output.
+- `mycp`, `mymv`—copy and move files using `open`, `read`, `write`, and `rename`.
+
+Small utilities were great for testing: once `mycat` worked, I could test `mypwd` and `myecho` by calling them from the shell I was building. This gave me quick feedback on `exec` behavior and argument passing.
+
+---
+
+## Phase 4—minimal shell (v0): the control loop
+
+The shell’s skeleton is conceptually simple but subtle in edge cases. The loop I started with looked like this:
+
+```c
+while (1) {
+    printf("Nano Shell Prompt >");
+    if (!fgets(input, sizeof(input), stdin)) break;
+// tokenize input into argv[]
+    tokenize(input, &argc, argv);
+    if (argc == 0) continue;
+    pid_t pid = fork();
+    if (pid == 0) {
+        execvp(argv[0], argv); // try to execute the program
+        perror("execvp");
+        exit(1);
+    } else if (pid > 0) {
+        int status;
+        waitpid(pid, &status, 0);
+    } else {
+        perror("fork");
+    }
+}
+```
+
+Key points:
+
+- `fork()` duplicates the process. The child uses `execvp()` or `execve()` to replace its program image.
+- The parent uses `waitpid()` to reap the child and inspect its exit status.
+- Error checking is essential. Mistakes in `tokenize()` cause segmentation faults and double-free-like behavior.
+
+Tokenization (safe pattern):
+
+```c
+void tokenize(char *line, int *argc, char **argv) {
+    char *token = strtok(line, " \t\n");
+    *argc = 0;
+    while (token) {
+        argv[(*argc)++] = token;
+        token = strtok(NULL, " \t\n");
+    }
+    argv[*argc] = NULL;
+}
+```
+
+Note: `strtok()` is simple and fine for a tiny shell; a production shell needs more careful handling of quotes.
+
+---
+
+## Phase 5—I/O redirection (`>`, `<`)
+
+Support for `>` and `<` required parsing and the use of `dup2()`. The general steps for implementing a simple output-redirection command, `> out.txt`, are:
+
+1. Parse the tokens and detect `>` or `<` and the file that follows.
+2. In the child, before `exec`, use `open()` to open the file and `dup2()` to map the file descriptor to `STDOUT_FILENO` or `STDIN_FILENO`.
+
+Example (child side):
+
+```c
+int fd = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+if (fd < 0) { perror("open outfile"); exit(1); }
+if (dup2(fd, STDOUT_FILENO) < 0) { perror("dup2"); exit(1); }
+close(fd);
+execvp(argv[0], argv);
+```
+
+I learned to always `close()` unused descriptors and guard `dup2()` with error checks.
+
+---
+
+## Phase 6—built-in commands (for example, `cd`)
+
+Some commands cannot be external programs because changing process state, such as the working directory, must affect the shell process itself. Implementing `cd` in the shell looks like this:
+
+```c
+if (strcmp(argv[0], "cd") == 0) {
+    if (argc < 2) { fprintf(stderr, "cd: missing argument\n"); }
+    else if (chdir(argv[1]) != 0) { perror("cd"); }
+    continue; // go to next prompt
+}
+```
+
+Other built-ins include `exit`, `help`, and optionally `pwd`.
+
+---
+
+## Phase 7—debugging, tests, and pain points
+
+This project exposed many subtle mistakes. Here are the concrete problems I encountered and how I fixed them.
+
+### 1. Using `strlen()` after `read()`
+
+**Symptom:** Output was truncated or contained garbage; tests comparing exact output failed.
+
+**Root cause:** `strlen()` depends on a NUL terminator; `read()` doesn’t add one.
+
+**Fix:** Use the `ssize_t` value returned by `read()` as the length to write.
+
+```c
+ssize_t r = read(fd, buf, sizeof(buf));
+if (r > 0) write(STDOUT_FILENO, buf, r);
+```
+
+### 2. Incorrect loop condition when using `read()`
+
+**Symptom:** The loop sometimes executed extra times; sometimes it became infinite if the condition was misused.
+
+**Bug pattern I had:** `while (!(read(fd, buf, n) <= 0)) { ... }`—this calls `read()` twice or ignores its return value.
+
+**Fix:** Call `read()` once and store the result in `bytesRead`, then use `while (bytesRead > 0)`.
+
+### 3. Permission errors in redirection tests
+
+**Symptom:** `cannot access /root/output.txt: Permission denied` when running tests as an unprivileged user.
+
+**Diagnosis:** Tests tried to write into `/root` (a privileged location). Running tests as a normal user fails as expected.
+
+**Fix:** Adjust tests to use writable paths (or run tests with proper privileges) and ensure the shell prints clear error messages when `open()` returns `-1`.
+
+### 4. Exit-code and test-harness failures
+
+**Symptom:** Tests expected the shell to return 0 on success, but my `main` returned a nonzero value because of unhandled errors.
+
+**Fix:** Clearly define exit paths for the shell and program utilities. For utilities, return zero on success and nonzero on failure. For the shell, ensure it returns 0 after a normal shutdown, not after internal errors.
+
+### 5. `execve()` vs. `execvp()` and `PATH` handling
+
+**Symptom:** The shell couldn’t find `ls` unless it was given a full path.
+
+**Root cause:** `execve()` expects absolute paths or requires the environment `PATH` to be handled manually; `execvp()` performs `PATH` lookup.
+
+**Fix:** Use `execvp()` in child processes or implement `PATH` lookup myself.
+
+---
+
+## How ChatGPT helped me (transparent note)
+
+During many of these issues, I used ChatGPT as a debugging assistant. My typical interaction pattern was:
+
+- I pasted the exact error message and a small snippet of code.
+- ChatGPT explained likely root causes (for example, why `strlen()` is wrong or why `read()` needs to be checked).
+- ChatGPT suggested alternative idioms and small code fixes (using `ssize_t`, checking return values, and `dup2` patterns for redirection).
+
+This partnership moved me through the debugging cycle faster: I received explanations and examples that I could test and adapt in my repository. I ultimately validated fixes by running unit-like tests and integration runs.
+
+---
+
+## Repository structure (high level)
+
+My project structure loosely follows:
+
+```text
+Road-to-my-own-shell/
+├── README.md
+├── mycat/
+│   └── mycat.c
+├── mypwd/
+│   └── mypwd.c
+├── nanoshell/
+│   └── nanoshell.c
+└── tests/
+    └── (test harnesses and expected outputs)
+```
+
+See the [GitHub repository](https://github.com/abdulrahman-111/Road-to-my-own-shell) for the exact layout and code.
+
+---
+
+## How to build and run (developer instructions)
+
+Here are simple commands you can use to compile and test the utilities locally.
+
+### Build a utility
+
+```bash
+gcc -Wall -Wextra -o mycat mycat.c
+./mycat somefile.txt
+```
+
+### Add it to `PATH` for convenience
+
+```bash
+mkdir -p $HOME/bin
+mv mycat $HOME/bin/
+# Make sure ~/.profile or ~/.bashrc adds ~/bin to PATH
+```
+
+### Build and run the shell
+
+```bash
+gcc -Wall -Wextra -o nanoshell nanoshell.c
+./nanoshell
+# then try: ls, ./mycat README.md, echo hello > out.txt
+```
+
+---
+
+## Testing tips and useful checks
+
+- Use `strace` to trace system calls and see exactly what `open`, `read`, `write`, and `exec` do.
+- Create a small test harness that runs commands against your shell and compares standard output, standard error, and exit codes with expected outputs.
+
+Example test (concept):
+
+```bash
+# run command in my shell and capture stdout
+./nanoshell <<EOF > out.txt
+./mycat tests/sample.txt
+EOF
+# compare
+diff out.txt tests/expected_sample.txt
+```
+
+---
+
+## Final notes—what this project meant to me
+
+This is a log of effort: dozens of small experiments, nights spent debugging, and incremental wins. Every bug that felt like a setback turned into a lesson about how Linux and C behave when you interact directly with OS services. I learned to respect error codes, read man pages again and again, and write tiny tests to verify behavior. Using ChatGPT shortened the debugging cycles, but the learning happened while I implemented and tested the fixes.

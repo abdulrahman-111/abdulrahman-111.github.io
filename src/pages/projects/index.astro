@@ -18,7 +18,7 @@ const projects = (await getCollection('projects')).sort(
     <SectionHeader
       eyebrow="Project inventory"
       title="Systems, evidence, and engineering boundaries."
-      description="Case studies are ordered by portfolio rank and distinguish collaborative system capability from my verified contribution."
+      description="Case studies are ordered by portfolio rank and distinguish each collaborative system’s capabilities from my verified contribution."
     />
     <div class="projects__grid">
       {projects.map((project) => <ProjectCard project={project} />)}

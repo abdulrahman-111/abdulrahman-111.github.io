@@ -1,0 +1,138 @@
+---
+title: 'My First Linux Utility: A Step Toward Building My Own Shell'
+description: 'How I built a first Linux file-reading utility while learning the system calls behind shell tools.'
+published: 2025-08-24
+tags: ['Linux', 'Shells', 'C']
+category: 'systems-programming'
+sourceUrl: 'https://medium.com/@agofficial/my-first-linux-utility-a-step-toward-building-my-own-shell-dc05b7b82872'
+draft: false
+---
+
+Like many curious programmers, I’ve always wondered:
+
+- How does the shell actually run commands?
+- What even _is_ a command?
+- How can I build my own shell—or even my own operating system someday?
+
+This curiosity eventually led me to write my **first Linux utility**, called `mycat`, a simplified version of the `cat` command. In this post, I want to share my journey, the mistakes I made, what I learned, and how this small step brought me closer to understanding Linux and shell internals.
+
+## My understanding of shells and commands
+
+Before writing any code, my view of Linux commands and the shell was unclear. But after experimenting, I finally understood:
+
+- A **command** in Linux is basically just a **program**. It could be written in C, Python, or even Bash itself. If it’s compiled or interpreted correctly and placed in the right location (like `/usr/bin`), the shell can run it just by typing its name—no file extensions are required.
+- The **shell** (like Bash or Zsh) is itself a program. It:
+  1. Takes your command as input.
+  2. Tokenizes it into a command name, options, and arguments.
+  3. Calls system functions (system calls, such as `execve`) to let the **kernel** actually run the program.
+- The **kernel** is the core of the operating system. It manages processes, memory, and hardware. The shell is just a user-space program that uses the kernel’s system calls to do its job.
+
+This mental model finally made sense once I tried to write my first utility.
+
+## Step 1: my first version of `mycat`
+
+I decided to start small: a program that prints the contents of a file to the terminal, like the real `cat` command.
+
+Here’s my first version, **hard-coded** to read a specific file:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+
+int main() {
+    int fd = open("/home/abdo/Desktop/test.txt", O_RDONLY);
+
+    if (fd < 0) {
+        exit(-1);
+    }
+
+    int count = 1000;
+    char str[count];
+
+    read(fd, str, count);
+    int size = strlen(str);
+    if (write(1, str, size) < 0) {
+        exit(-2);
+    }
+
+    printf("hi man, we do it!");
+    close(fd);
+    return 0;
+}
+```
+
+It worked, but only for one file and with some obvious limitations.
+
+## Step 2: improving it—`mycat` with command-line arguments
+
+I wanted it to work like the real `cat`, so I modified it to accept **any file name** from the command line. That was my version 1:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <file1> <file2> ...\n", argv[0]);
+        return 1;
+    }
+    char buffer[4096]; // 4KB buffer
+    for (int x = 1; x < argc; x++) {
+        int fd = open(argv[x], O_RDONLY);
+        if (fd < 0) {
+            perror("open");
+            continue;
+        }
+        ssize_t bytesRead;
+        while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0) {
+            if (write(1, buffer, bytesRead) != bytesRead) {
+                perror("write");
+                close(fd);
+                return 1;
+            }
+        }
+        if (bytesRead < 0) {
+            perror("read");
+        }
+        close(fd);
+    }
+    return 0;
+}
+```
+
+Now I could do:
+
+```bash
+./mycat file1.txt file2.txt
+```
+
+and it would print them just like the real `cat`.
+
+## What I learned
+
+Writing `mycat` taught me several things:
+
+- **Commands = programs:** They can be written in any language and don’t need file extensions in Linux.
+- **Shell vs. kernel:** The shell is just a program; the kernel actually runs the process.
+- **System calls:** Functions like `open`, `read`, `write`, and `close` talk directly to the kernel.
+
+Even though this utility was simple, it gave me a much clearer picture of what happens when I type a command in the terminal.
+
+## Next steps: building my own shell
+
+My goal doesn’t stop at `mycat`. This was just the first step toward:
+
+- Building my own **shell** that can run commands.
+- Learning more about **system calls**, **processes**, and **how operating systems work** under the hood.
+
+Each small program brings me closer to understanding the bigger picture.
+
+## Conclusion
+
+This journey taught me that building something small is the best way to learn. Writing `mycat` helped me grasp how commands, the shell, and the kernel interact.
+
+Next, I’ll start working on my own shell—stay tuned for that adventure!
