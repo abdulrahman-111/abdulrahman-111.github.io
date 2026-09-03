@@ -1,0 +1,146 @@
+[
+  {
+    "name": "AWS AI Practitioner Challenge",
+    "issuer": "Udacity",
+    "category": "ml-ai",
+    "previewPath": "/certificates/aws-ai-practitioner-challenge.webp",
+    "featured": true,
+    "skills": ["AWS AI services", "Generative AI"]
+  },
+  {
+    "name": "AWS Certified Cloud Practitioner",
+    "issuer": "Amazon Web Services",
+    "issued": "2026-05-25",
+    "expires": "2029-05-25",
+    "category": "professional",
+    "previewPath": "/certificates/aws-certified-cloud-practitioner.webp",
+    "featured": true,
+    "skills": ["AWS", "Cloud fundamentals"]
+  },
+  {
+    "name": "Duolingo English Test — CEFR B2 (115)",
+    "issuer": "Duolingo",
+    "issued": "2025-05-06",
+    "category": "language",
+    "previewPath": "/certificates/duolingo-english-test.webp",
+    "featured": false,
+    "skills": ["English — CEFR B2", "Overall score 115"]
+  },
+  {
+    "name": "Python Programming — Introduction & Intermediate",
+    "issuer": "MCIT",
+    "issued": "2025-09-04",
+    "category": "programming-systems",
+    "previewPath": "/certificates/mcit-python.webp",
+    "featured": false,
+    "skills": ["Python", "Programming fundamentals"]
+  },
+  {
+    "name": "Natural Language Processing",
+    "issuer": "NTI & ITIDA",
+    "issued": "2026-07-23",
+    "category": "ml-ai",
+    "previewPath": "/certificates/nti-natural-language-processing.webp",
+    "featured": true,
+    "skills": ["NLP", "120 training hours", "Score: 87.5%"]
+  },
+  {
+    "name": "AWS Academy Cloud Foundations",
+    "issuer": "AWS Academy",
+    "issued": "2025-08-23",
+    "category": "cloud-devops",
+    "verificationUrl": "https://www.credly.com/go/7vmfVi2e",
+    "previewPath": "/certificates/aws-academy-cloud-foundations.webp",
+    "featured": true,
+    "skills": ["AWS", "20 course hours"]
+  },
+  {
+    "name": "Cloud Architect",
+    "issuer": "NTI & ITIDA",
+    "issued": "2025-08-21",
+    "category": "cloud-devops",
+    "previewPath": "/certificates/nti-cloud-architect.webp",
+    "featured": true,
+    "skills": ["Cloud architecture", "120 training hours", "Score: 86%"]
+  },
+  {
+    "name": "Getting Started with Deep Learning",
+    "issuer": "NVIDIA",
+    "issued": "2025-08-30",
+    "category": "ml-ai",
+    "previewPath": "/certificates/nvidia-deep-learning.webp",
+    "featured": false,
+    "skills": ["Deep learning", "Neural networks"]
+  },
+  {
+    "name": "Network Essentials",
+    "issuer": "NTI",
+    "issued": "2024-09-07",
+    "category": "networking",
+    "previewPath": "/certificates/nti-network-essentials.webp",
+    "featured": false,
+    "skills": ["Networking", "60 training hours", "Score: 94%"]
+  },
+  {
+    "name": "Cisco Networking Essentials",
+    "issuer": "Cisco Networking Academy",
+    "issued": "2024-09-17",
+    "category": "networking",
+    "previewPath": "/certificates/cisco-networking-essentials.webp",
+    "featured": false,
+    "skills": ["TCP/IP", "Network security"]
+  },
+  {
+    "name": "Introduction to Microsoft Azure: Describe Cloud Concepts",
+    "issuer": "Microsoft Learn",
+    "issued": "2025-09-28",
+    "category": "cloud-devops",
+    "previewPath": "/certificates/microsoft-azure-cloud-concepts.webp",
+    "featured": false,
+    "skills": ["Microsoft Azure", "Cloud concepts"]
+  },
+  {
+    "name": "DevOps Foundations",
+    "issuer": "Sprints × Microsoft",
+    "category": "cloud-devops",
+    "previewPath": "/certificates/sprints-devops-foundations.webp",
+    "featured": true,
+    "skills": ["DevOps", "40 training hours"]
+  },
+  {
+    "name": "Docker from Zero to Hero",
+    "issuer": "Udemy",
+    "issued": "2026-01-20",
+    "category": "cloud-devops",
+    "previewPath": "/certificates/udemy-docker.webp",
+    "featured": false,
+    "skills": ["Docker", "5 course hours"]
+  },
+  {
+    "name": "System Programming in Linux",
+    "issuer": "Udemy",
+    "issued": "2025-08-29",
+    "category": "programming-systems",
+    "previewPath": "/certificates/udemy-system-programming-linux.webp",
+    "featured": false,
+    "skills": ["Linux", "System programming", "12 course hours"]
+  },
+  {
+    "name": "Helm for Beginners",
+    "issuer": "KodeKloud",
+    "issued": "2026-06-28",
+    "category": "cloud-devops",
+    "previewPath": "/certificates/kodekloud-helm.webp",
+    "featured": false,
+    "skills": ["Helm", "Kubernetes packaging"]
+  },
+  {
+    "name": "Kubernetes for Absolute Beginners",
+    "issuer": "KodeKloud",
+    "issued": "2026-02-16",
+    "category": "cloud-devops",
+    "previewPath": "/certificates/kodekloud-kubernetes.webp",
+    "featured": false,
+    "skills": ["Kubernetes", "Container orchestration"]
+  }
+]
