@@ -1,0 +1,154 @@
+---
+title: 'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline'
+description: A practical guide to separating infrastructure provisioning, cluster configuration, CI validation, and declarative Kubernetes delivery.
+published: 2026-09-02
+tags:
+  - Terraform
+  - Ansible
+  - Jenkins
+  - Kubernetes
+  - Argo CD
+  - Helm
+category: devops
+draft: false
+---
+
+An end-to-end delivery platform becomes difficult to reason about when every tool is allowed to change everything. Terraform can run scripts, CI can call `kubectl`, configuration management can create cloud resources, and a GitOps controller can be bypassed “just this once.” Each shortcut is convenient in isolation. Together, they erase the answer to a basic operating question: which system owns the desired state?
+
+The more durable design is a sequence of explicit boundaries. Terraform provisions infrastructure. Ansible configures the self-managed Kubernetes cluster. Jenkins validates the application artifact. Argo CD reconciles a Helm release. Runtime services then expose metrics and logs, while encrypted secret manifests follow the same declarative path as other configuration.
+
+This article explains that shape using the End-to-End DevOps Pipeline project as a concrete reference. It describes an engineering pattern and its trade-offs; it does not claim production scale.
+
+## Start with an ownership map
+
+Before writing a pipeline, write down the state each tool is permitted to own.
+
+| Layer                  | Owner                     | Durable output                             |
+| ---------------------- | ------------------------- | ------------------------------------------ |
+| AWS infrastructure     | Terraform                 | Terraform state and planned resources      |
+| Cluster configuration  | Ansible                   | Repeatable host and cluster configuration  |
+| Application validation | Jenkins                   | A checked, versioned container image       |
+| Kubernetes release     | Argo CD and Helm          | Reconciled declarative release state       |
+| Runtime signals        | Prometheus, Grafana, Loki | Metrics, dashboards, and logs              |
+| Deployable secrets     | Sealed Secrets            | Encrypted manifests safe for Git workflows |
+
+The table is more than documentation. It is a conflict-prevention mechanism. If Jenkins owns image production but also applies Kubernetes objects directly, Argo CD cannot tell whether a difference is intentional or drift. If both Terraform and Ansible create the same cluster resource, rerunning either system becomes risky.
+
+A useful review question is: “If this value changes, which repository and which controller are responsible for converging it?” More than one answer signals an unclear boundary.
+
+## Provision infrastructure with a reviewable Terraform plan
+
+Terraform is most useful when a proposed infrastructure change can be inspected before it is applied. A representative validation sequence is:
+
+```bash
+terraform fmt -check -recursive
+terraform init
+terraform validate
+terraform plan -out=tfplan
+```
+
+`fmt` and `validate` catch structural problems; `plan` exposes the intended resource changes. The saved plan also makes the apply boundary explicit: the artifact reviewed is the artifact applied.
+
+The important design constraint is to keep host configuration out of the resource graph unless it truly belongs there. Terraform can provision compute, networking, and related AWS resources. Ansible can then take the resulting hosts and make their cluster configuration repeatable. This reduces the temptation to hide long imperative scripts inside provisioners, where idempotence and failure recovery are harder to inspect.
+
+This separation is not free. Outputs from provisioning must become valid configuration inputs, credentials have to cross the boundary safely, and a partially created infrastructure graph may need repair before configuration can begin. Those are visible integration problems, which is preferable to silently mixing two state models.
+
+## Configure the cluster with idempotent Ansible work
+
+A self-managed Kubernetes cluster exposes configuration responsibilities that a managed control plane would otherwise absorb. Ansible tasks should express the target host state so rerunning them converges rather than duplicates work.
+
+A safe workflow checks inputs and previews changes before a real run where possible:
+
+```bash
+ansible-inventory -i <inventory> --graph
+ansible-playbook -i <inventory> <playbook> --syntax-check
+ansible-playbook -i <inventory> <playbook> --check
+```
+
+Check mode is evidence, not a guarantee. Some modules cannot predict every effect, and cluster bootstrap steps may depend on state that does not yet exist. The practical standard is stronger than “the command returned zero”: tasks should have explicit conditions, stable identifiers, and a documented recovery path when bootstrap stops halfway through.
+
+The main trade-off is control versus operating surface. Self-management makes certificates, node configuration, upgrades, and recovery visible. That is valuable for learning and for environments that require that control, but it creates more responsibilities than consuming a managed cluster.
+
+## Put quality and vulnerability gates before image publication
+
+The container registry is an important trust boundary. Once an image tag is available to deployment automation, later stages may assume it already passed the agreed checks. That is why the reference pipeline runs SonarQube and Trivy before pushing the image.
+
+A simplified Jenkins shape looks like this:
+
+```groovy
+stage('Quality analysis') {
+  steps {
+    sh '<run SonarQube analysis>'
+  }
+}
+
+stage('Container scan') {
+  steps {
+    sh 'trivy image --exit-code 1 <local-image-ref>'
+  }
+}
+
+stage('Publish image') {
+  steps {
+    sh 'docker push <immutable-image-ref>'
+  }
+}
+```
+
+The example is illustrative rather than a copy of repository code. Its key property is ordering: a failed analysis or scan prevents publication.
+
+Gates also need a policy. Treating every finding identically can make a pipeline unusable; ignoring all warnings turns the tools into decoration. Define which conditions fail the build, how an exception is recorded, and when the exception expires. Prefer immutable image references so a reviewed artifact cannot later point to different bytes.
+
+## Let GitOps own the Kubernetes release
+
+After CI publishes a validated image, deployment should cross into a declarative workflow. A Helm umbrella chart can group related release units, and Argo CD can compare that declared state with the cluster.
+
+Useful local checks happen before reconciliation:
+
+```bash
+helm lint <umbrella-chart>
+helm template <release-name> <umbrella-chart> --namespace <namespace>
+```
+
+Rendering the chart reveals invalid YAML, missing values, and surprising template output without changing the cluster. Once the desired release is committed, Argo CD becomes the runtime reconciler.
+
+This ownership rule changes incident response. A manual `kubectl edit` may repair a symptom temporarily, but the controller will either revert it or leave an undocumented divergence if reconciliation is disabled. The durable fix belongs in the declared release state. Emergency changes still need a path back into source control, otherwise Git stops describing the system.
+
+Namespaces and Horizontal Pod Autoscaling belong in that same release model. They are policy, not ad hoc commands. Keeping them declarative makes their review history and drift behavior visible.
+
+## Treat stateful initialization as a separate transition
+
+Kubernetes can create MongoDB workloads, but “pods exist” and “replica set is initialized” are different states. The reference system handles initialization with an Argo CD PostSync operation.
+
+That hook needs restart-safe behavior. Reconciliation can repeat after a retry or later change, so initialization should detect an already configured replica set and finish without corrupting it. It should also fail loudly when the database is reachable but not ready for the requested operation.
+
+This pattern is useful for actions that logically follow a release but are not ordinary continuously reconciled resources. It should remain narrow. Turning every application migration into an unbounded hook makes release status depend on opaque imperative work and complicates rollback.
+
+## Build observability and secret handling into the platform
+
+Prometheus, Grafana, and Loki answer different questions. Prometheus captures measurable time-series behavior. Grafana presents queries and dashboards. Loki carries logs that add event context. A dashboard without a collection path is only a picture; logs without stable labels are difficult to correlate.
+
+The same principle applies to secrets. GitOps needs configuration in version control, but plain-text credentials do not belong there. Sealed Secrets allows encrypted secret manifests to follow the release workflow. Encryption does not eliminate lifecycle work: key ownership, rotation, recovery, and access to decrypted values remain operational concerns.
+
+Observability can also fail independently. If the application is healthy but the metrics path is broken, silence must not be mistaken for health. Monitor the monitoring path, keep labels bounded, and make log retention a deliberate capacity choice.
+
+## Failure modes and trade-offs to test
+
+An end-to-end path should be tested at its boundaries, not only through a successful demo:
+
+- A Terraform plan proposes an unintended replacement. The review gate must stop before apply.
+- Ansible reaches only part of the inventory. A rerun must converge the successful and failed hosts safely.
+- SonarQube or Trivy fails. The image must not be published as an approved artifact.
+- The image exists but the Git declaration still points elsewhere. Argo CD should deploy the declared reference, not infer CI intent.
+- Helm renders correctly but the PostSync initialization fails. The release must expose that incomplete state.
+- A manual cluster edit introduces drift. Reconciliation should make the difference visible.
+- Metrics or logs disappear. The absence of telemetry should trigger investigation rather than imply a quiet system.
+- A sealed manifest cannot be decrypted. Deployment should fail without printing the underlying secret.
+
+These checks reveal the central trade-off of a multi-tool platform: more specialized controllers improve separation, but every handoff becomes a contract that must be observable and recoverable.
+
+## Conclusion
+
+The route from Terraform to GitOps is not a race to connect the largest number of tools. It is an exercise in assigning ownership. Provisioning, configuration, artifact validation, release reconciliation, stateful initialization, telemetry, and secret handling each need a clear desired state and a visible failure boundary.
+
+When those boundaries hold, reruns become safer and incidents become easier to locate. When they blur, automation can still look impressive while making the system harder to understand. The best pipeline is the one that can explain who changes what, what evidence authorizes the transition, and how a failed transition is recovered.

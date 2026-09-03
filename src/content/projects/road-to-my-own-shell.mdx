@@ -1,0 +1,66 @@
+---
+title: Road to My Own Shell
+summary: A solo C/Linux project that grows from small custom utilities into a shell with built-ins, processes, redirection, variables, and environment handling.
+rank: 5
+featured: false
+period: Aug–Sep 2025
+tags:
+  - C
+  - Linux
+  - Systems Programming
+  - Processes
+  - Shell
+repoUrl: https://github.com/abdulrahman-111/Road-to-my-own-shell
+collaborative: false
+contribution:
+  - Built the complete Femto-to-Micro progression as a solo systems-programming project.
+---
+
+## Context
+
+A shell looks simple at the prompt and complicated at every boundary behind it. Reading a command is only the beginning: some commands must change the shell process itself, external programs require process creation, redirection changes file descriptors, and variables have to follow a coherent lifetime and environment policy.
+
+Road to My Own Shell is a solo C/Linux project organized as four progressive stages—Femto, Pico, Nano, and Micro—so each new responsibility is introduced on top of a smaller working model.
+
+## System capability
+
+Across its stages, the project covers custom utilities, shell built-ins, process management, redirection, shell variables, and environment handling. The progression moves from focused command-line behavior toward a small shell that coordinates those operating-system interfaces.
+
+This is the only solo case study in this project collection. The capability and contribution scopes therefore coincide, unlike the collaborative case studies elsewhere in the portfolio.
+
+## Architecture
+
+The four-stage structure is the architecture:
+
+1. **Femto** establishes the smallest utility-oriented foundation.
+2. **Pico** extends the command environment with additional behavior.
+3. **Nano** develops more shell responsibilities around command execution.
+4. **Micro** brings together built-ins, processes, redirection, variables, and environment handling.
+
+The conceptual execution path is read, parse, classify, execute, and report status. Classification is the critical branch: a built-in that changes shell state must execute inside the shell process, while an external program belongs in a child process.
+
+## Constraints and trade-offs
+
+C exposes the underlying Linux interfaces with little protection. Every token buffer, allocated string, file descriptor, fork result, and process status needs an ownership decision. A shell that works on the happy path can still leak resources or leave redirected descriptors open after an error.
+
+Built-ins create a semantic trade-off. Running all commands through the same child-process path is simpler, but a command that changes shell variables or environment state would then modify only the child and lose its effect when that process exits. Executing built-ins in the parent preserves state but requires careful handling so temporary redirection does not permanently alter the shell.
+
+The staged approach deliberately favors learning and inspectability over pretending to be a production shell. Each stage narrows the number of new failure modes introduced at once.
+
+## Implementation
+
+The implementation uses C on Linux to work directly with process and descriptor behavior. Custom utilities establish command-line fundamentals. Built-ins add commands that the shell itself must handle. Process management introduces the parent/child execution model, and redirection connects parsed syntax to file-descriptor changes.
+
+Shell variables and environment handling then add state. The important implementation boundary is whether a value belongs only to the shell's internal variable model or must be exposed to an executed program through its environment. Organizing the work as Femto through Micro makes those decisions visible instead of burying them in one large parser-executor loop.
+
+## My contribution
+
+I built the full Femto-to-Micro progression as a solo project. My work covers the custom utilities, built-ins, process management, redirection, shell variables, and environment handling documented across those stages.
+
+Because this repository is the solo case study, no collaborative subsystem is being attributed to me through implication; the scope is the staged project itself.
+
+## Outcomes and learning
+
+The project produces a progressive, inspectable route from small C/Linux utilities to a shell with stateful and process-oriented behavior. Its main outcome is not a claim of replacing an established shell, but a concrete understanding of why command execution crosses process, descriptor, parsing, and environment boundaries.
+
+The staged design also demonstrates a reliable systems-programming habit: introduce one class of responsibility, make its ownership and failure paths explicit, and only then compose it with the next layer.

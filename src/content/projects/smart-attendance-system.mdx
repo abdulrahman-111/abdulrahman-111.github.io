@@ -1,0 +1,71 @@
+---
+title: Smart Attendance System
+summary: A collaborative desktop vision system combining face recognition, attention monitoring, emotion analysis, a PySide6 interface, and SQLite persistence.
+rank: 2
+featured: true
+period: Apr–May 2026
+tags:
+  - Python
+  - OpenCV
+  - TensorFlow
+  - PySide6
+  - SQLite
+  - Computer Vision
+repoUrl: https://github.com/abdulrahman-111/Smart-Attendance-System
+collaborative: true
+contribution:
+  - Implemented the emotion-recognition work.
+  - Designed and integrated the database layer.
+---
+
+## Context
+
+Attendance is not a single inference problem. A useful desktop system has to acquire frames, detect and recognize faces, estimate attention, analyze emotion, update a responsive interface, and persist records without confusing one model's output for another's certainty.
+
+This collaborative project combines those responsibilities in a PySide6 application using OpenCV, TensorFlow, PCA with SVM, EfficientNetB2, and SQLite. The design challenge is orchestration: multiple models and the user interface share a live input stream, but they do not have the same latency, output shape, or reliability.
+
+## System capability
+
+The complete team system performs real-time face detection and recognition, attention monitoring, and emotion analysis. A PySide6 interface exposes the workflow, while SQLite stores the application data. OpenCV supports the vision pipeline, TensorFlow supports model execution, and the project uses PCA with SVM and EfficientNetB2 within its model set.
+
+Project-reported attention accuracy is 95.30%. Project-reported face-recognition accuracy is 93.62%. Project-reported emotion F1 is 74.4%.
+
+These capabilities and results describe the collaborative system. They do not mean that every model was my personal implementation.
+
+## Architecture
+
+The architecture can be understood as a sequence of cooperating stages:
+
+1. **Frame acquisition and detection** locate the visual inputs that downstream models can consume.
+2. **Identity, attention, and emotion inference** produce separate signals rather than one combined label.
+3. **Application orchestration** associates those signals with the active attendance workflow.
+4. **PySide6 presentation** keeps model output and user actions visible.
+5. **SQLite persistence** records the durable application state.
+
+Keeping the model outputs distinct is important. Identity asks who is present, attention asks about observable focus signals, and emotion classification asks a different question with a different error profile.
+
+## Constraints and trade-offs
+
+Several inference paths compete for the same frame and compute budget. Running every model synchronously can block the interface; updating models at different times can produce temporally inconsistent results. The application therefore needs clear ownership of frame capture and controlled handoff to inference and persistence work.
+
+Metric selection also changes how a result should be read. Accuracy is reported for attention and face recognition, while F1 is reported for emotion. Those values are not interchangeable, and the emotion result should not be presented as if it were an accuracy measurement.
+
+SQLite is a practical local persistence layer for a desktop application, but writes still need deliberate transaction boundaries. A detected face, an inferred state, and a committed attendance record are separate events; the interface should not imply that a record is durable until the database operation succeeds.
+
+## Implementation
+
+OpenCV supplies the live computer-vision path, and the model layer combines TensorFlow, PCA with SVM, and EfficientNetB2 as documented by the project. PySide6 coordinates the desktop experience, while SQLite provides structured persistence.
+
+The implementation benefits from treating model outputs as typed application events. The UI can display a recent inference without making it the source of truth, and the database can commit only the fields required by the attendance workflow. This separation also makes a model failure containable: one unavailable analysis should be reported explicitly rather than silently corrupting another model's result.
+
+## My contribution
+
+My verified contribution was the emotion-recognition work and the database layer. That scope covers the emotion path and the design and integration of persistence.
+
+Face recognition and attention monitoring are capabilities of the collaborative project, not personal contributions I claim here. The distinction is intentional: the case study documents how the whole system works while attributing only the work that is verified as mine.
+
+## Outcomes and learning
+
+The results show different performance profiles across the three model tasks. Project-reported attention accuracy is 95.30%. Project-reported face-recognition accuracy is 93.62%. Project-reported emotion F1 is 74.4%. The difference reinforces the need to present each task with its own metric and failure expectations.
+
+The broader systems lesson is that a multi-model application is an orchestration problem as much as a machine-learning problem. Responsive presentation, durable state, and honest uncertainty boundaries determine whether model outputs can be used coherently.

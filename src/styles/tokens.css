@@ -1,0 +1,32 @@
+:root {
+  color-scheme: dark;
+
+  --color-canvas: #07131f;
+  --color-surface: #0c1d2d;
+  --color-surface-raised: #10283d;
+  --color-border: #27445a;
+  --color-border-strong: #3b6680;
+  --color-text: #f1f7fb;
+  --color-text-muted: #aac0d0;
+  --color-cyan: #3dd9e8;
+  --color-cyan-strong: #8bf4ff;
+  --color-amber: #f4b942;
+  --color-focus: #ffd166;
+  --color-grid: rgb(61 217 232 / 7%);
+
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  --space-1: 0.5rem;
+  --space-2: 0.75rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --space-6: 3rem;
+  --space-7: 4.5rem;
+
+  --content-width: 72rem;
+  --radius: 0.25rem;
+  --transition-fast: 160ms ease;
+}

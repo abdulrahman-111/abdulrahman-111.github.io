@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — Route not found | Abdulrahman Gomaa Hassan"
+  description="The requested Systems Console route could not be found."
+>
+  <section class="not-found page-shell">
+    <p class="eyebrow">HTTP // 404</p>
+    <h1>Signal lost. Route not found.</h1>
+    <p>
+      The requested endpoint is not part of this build. Return to the system index or inspect the
+      project inventory.
+    </p>
+    <div>
+      <a class="button-link" href="/">Return home</a><a
+        class="button-link button-link--secondary"
+        href="/projects/">View projects</a
+      >
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    align-content: center;
+    min-height: 70vh;
+    padding-block: var(--space-6);
+  }
+  .not-found h1 {
+    max-width: 12ch;
+    margin: var(--space-2) 0 var(--space-3);
+    font-size: clamp(3rem, 10vw, 7rem);
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+  }
+  .not-found > p:not(.eyebrow) {
+    max-width: 38rem;
+    color: var(--color-text-muted);
+  }
+  .not-found div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+</style>

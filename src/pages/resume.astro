@@ -1,0 +1,80 @@
+---
+import ContactCta from '../components/ContactCta.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import { siteConfig } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title={`Résumé | ${siteConfig.name}`}
+  description="Download Abdulrahman Gomaa Hassan’s role-specific ML/AI or DevOps/Cloud résumé."
+>
+  <section class="resume page-shell">
+    <SectionHeader
+      eyebrow="Role-aligned documents"
+      title="Choose the résumé aligned with the role."
+      description="Both documents are compiled from the source LaTeX résumés and kept separate so the most relevant engineering signal is easy to review."
+    />
+    <div class="resume__grid">
+      {
+        siteConfig.resumes.map((resume, index) => (
+          <article>
+            <p class="eyebrow">Profile {String(index + 1).padStart(2, '0')}</p>
+            <h2>{resume.label}</h2>
+            <p>{resume.focus}</p>
+            <a class="button-link" href={resume.href} download>
+              Download {resume.label}
+            </a>
+          </article>
+        ))
+      }
+    </div>
+    <p class="resume__note">
+      Prefer a browser view? Each button links directly to a standard PDF that can also open in a
+      new tab.
+    </p>
+    <ContactCta />
+  </section>
+</BaseLayout>
+
+<style>
+  .resume {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+  }
+  .resume__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    gap: var(--space-3);
+  }
+  .resume__grid article {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-height: 20rem;
+    padding: var(--space-5);
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+  }
+  .resume__grid h2,
+  .resume__grid p {
+    margin: 0;
+  }
+  .resume__grid h2 {
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+    line-height: 1.1;
+  }
+  .resume__grid p:not(.eyebrow),
+  .resume__note {
+    color: var(--color-text-muted);
+  }
+  .resume__grid .button-link {
+    align-self: end;
+    justify-self: start;
+    margin-top: auto;
+  }
+  .resume__note {
+    margin: calc(var(--space-4) * -1) 0 0;
+  }
+</style>

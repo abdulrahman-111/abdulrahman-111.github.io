@@ -1,0 +1,42 @@
+---
+import { getCollection } from 'astro:content';
+import ContactCta from '../../components/ContactCta.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (first, second) => first.data.rank - second.data.rank,
+);
+---
+
+<BaseLayout
+  title="Projects | Abdulrahman Gomaa Hassan"
+  description="Verified ML systems, infrastructure, and systems-programming case studies."
+>
+  <section class="projects page-shell">
+    <SectionHeader
+      eyebrow="Project inventory"
+      title="Systems, evidence, and engineering boundaries."
+      description="Case studies are ordered by portfolio rank and distinguish collaborative system capability from my verified contribution."
+    />
+    <div class="projects__grid">
+      {projects.map((project) => <ProjectCard project={project} />)}
+    </div>
+    <ContactCta />
+  </section>
+</BaseLayout>
+
+<style>
+  .projects {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+  }
+
+  .projects__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: var(--space-3);
+  }
+</style>

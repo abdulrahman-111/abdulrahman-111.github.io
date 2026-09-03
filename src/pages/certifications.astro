@@ -1,0 +1,88 @@
+---
+import CertificationCard from '../components/CertificationCard.astro';
+import ContactCta from '../components/ContactCta.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import certificationsData from '../data/certifications.json';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { certificationSchema } from '../lib/content-schemas';
+
+const certifications = certificationSchema.array().parse(certificationsData);
+const groups = [
+  ['professional', 'Professional'],
+  ['ml-ai', 'ML / AI'],
+  ['cloud-devops', 'Cloud / DevOps'],
+  ['programming-systems', 'Programming / Systems'],
+  ['networking', 'Networking'],
+  ['language', 'Language'],
+] as const;
+---
+
+<BaseLayout
+  title="Certifications | Abdulrahman Gomaa Hassan"
+  description="Redacted previews of verified professional, ML, cloud, DevOps, programming, networking, and language credentials."
+>
+  <section class="credentials page-shell">
+    <SectionHeader
+      eyebrow="Verified training"
+      title="Credentials organized by engineering domain."
+      description="Every preview is generated from an approved source and masks private identifiers before publication. Unknown dates are intentionally omitted."
+    />
+    {
+      groups.map(([category, label]) => {
+        const entries = certifications.filter((entry) => entry.category === category);
+        return (
+          <section class="credential-group" aria-labelledby={`${category}-title`}>
+            <div class="credential-group__heading">
+              <>
+                <p class="eyebrow">{String(entries.length).padStart(2, '0')} records</p>
+                <h2 id={`${category}-title`}>{label}</h2>
+              </>
+            </div>
+            <div class="credential-grid">
+              {entries.map((certification) => (
+                <CertificationCard certification={certification} />
+              ))}
+            </div>
+          </section>
+        );
+      })
+    }
+    <ContactCta />
+  </section>
+</BaseLayout>
+
+<style>
+  .credentials {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+  }
+  .credential-group {
+    display: grid;
+    gap: var(--space-3);
+  }
+  .credential-group__heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--space-3);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .credential-group h2 {
+    margin: 0 0 var(--space-2);
+    font-size: clamp(1.55rem, 4vw, 2.3rem);
+  }
+  .credential-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 40rem) {
+    .credential-group__heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+  }
+</style>

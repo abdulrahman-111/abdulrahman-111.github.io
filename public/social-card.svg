@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0v40" fill="none" stroke="#3dd9e8" stroke-opacity=".09"/></pattern>
+  </defs>
+  <rect width="1200" height="630" fill="#07131f"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect x="64" y="60" width="1072" height="510" fill="#0c1d2d" fill-opacity=".92" stroke="#27445a"/>
+  <text x="100" y="125" fill="#3dd9e8" font-family="monospace" font-size="24" font-weight="700" letter-spacing="3">ML SYSTEMS // INFRASTRUCTURE</text>
+  <text x="100" y="215" fill="#f1f7fb" font-family="Arial, sans-serif" font-size="64" font-weight="700">I build intelligent systems—</text>
+  <text x="100" y="290" fill="#f1f7fb" font-family="Arial, sans-serif" font-size="64" font-weight="700">and the infrastructure</text>
+  <text x="100" y="365" fill="#f1f7fb" font-family="Arial, sans-serif" font-size="64" font-weight="700">behind them.</text>
+  <line x1="100" y1="410" x2="1100" y2="410" stroke="#27445a"/>
+  <text x="100" y="475" fill="#aac0d0" font-family="monospace" font-size="28">ABDULRAHMAN GOMAA HASSAN</text>
+  <text x="100" y="525" fill="#f4b942" font-family="monospace" font-size="22">CAIRO · ML SYSTEMS · DEVOPS · LINUX</text>
+  <circle cx="1070" cy="510" r="10" fill="#f4b942"/>
+</svg>

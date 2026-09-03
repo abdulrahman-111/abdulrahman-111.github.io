@@ -1,0 +1,74 @@
+---
+title: End-to-End DevOps Pipeline
+summary: A collaborative delivery system connecting AWS infrastructure, a self-managed Kubernetes cluster, Jenkins quality gates, Argo CD, Helm, observability, and sealed secrets.
+rank: 1
+featured: true
+period: Apr 2025–Jun 2026
+tags:
+  - AWS
+  - Terraform
+  - Kubernetes
+  - Ansible
+  - Jenkins
+  - Argo CD
+  - Helm
+  - Observability
+repoUrl: https://github.com/nhahub/NHA-4-147
+collaborative: true
+contribution:
+  - Built and containerized the MERN application.
+  - Provisioned AWS infrastructure and automated the self-managed Kubernetes cluster.
+  - Implemented the CI and GitOps/Helm delivery paths.
+  - Deployed the observability and secrets capabilities.
+---
+
+## Context
+
+This collaborative project treats delivery as one connected system rather than a collection of unrelated tools. A MERN e-commerce application must move from source to a repeatable container image, run on provisioned infrastructure, pass automated checks, and reach Kubernetes through a declarative deployment path. The same platform also needs a way to initialize stateful services, expose operating signals, and keep secrets out of plain-text manifests.
+
+The result is a useful study in boundaries: Terraform owns AWS resources, Ansible configures the self-managed Kubernetes cluster, Jenkins validates and publishes application artifacts, and Argo CD reconciles the declared release state.
+
+## System capability
+
+The overall team system containerizes the MERN application with Docker and provisions its AWS infrastructure with Terraform. Ansible automates a self-managed Kubernetes cluster. Jenkins runs SonarQube and Trivy checks before an image is pushed, while Argo CD deploys through a Helm umbrella chart.
+
+The Kubernetes layer includes namespaces and Horizontal Pod Autoscaling. A PostSync step initializes the MongoDB replica set after deployment. Prometheus, Grafana, and Loki provide the monitoring and logging path, and Sealed Secrets protects deployable secret material.
+
+This is the capability of the collaborative repository as a whole. It is not a claim that one contributor exclusively designed or implemented every part of it.
+
+## Architecture
+
+The delivery flow separates responsibilities into four layers:
+
+1. **Application and artifact layer:** the MERN application is packaged as a Docker image.
+2. **Infrastructure and cluster layer:** Terraform provisions AWS resources, then Ansible automates the Kubernetes cluster configuration.
+3. **Validation and release layer:** Jenkins places SonarQube and Trivy before the image-push boundary; Argo CD then reconciles the Helm umbrella release.
+4. **Runtime operations layer:** namespaces and HPA organize workloads, the MongoDB PostSync initialization handles a stateful dependency, Prometheus/Grafana/Loki expose signals, and Sealed Secrets handles encrypted configuration.
+
+That division matters because an infrastructure change, an image build, and a release reconciliation have different failure modes and should remain independently inspectable.
+
+## Constraints and trade-offs
+
+A self-managed Kubernetes cluster makes the automation work visible, but it also expands the operating surface compared with a managed control plane. Terraform and Ansible must have a clear ownership boundary: infrastructure creation belongs in Terraform state, while host and cluster configuration belongs in idempotent Ansible tasks.
+
+GitOps adds another boundary. Jenkins should produce a validated artifact; Argo CD should decide whether the cluster matches the declared release state. Letting both systems mutate the same runtime objects would make drift and rollback behavior harder to reason about.
+
+Stateful initialization also needs explicit ordering. The MongoDB replica-set action is a PostSync operation because a declarative workload becoming ready and a database topology becoming initialized are related but distinct events. Observability and secrets are part of the platform design, not optional work postponed until after deployment.
+
+## Implementation
+
+The implementation connects the layers through artifacts and declarative state. Docker supplies the application artifact. Jenkins runs static-quality and vulnerability checks with SonarQube and Trivy before allowing the image-push step. Terraform and Ansible provide repeatable infrastructure and cluster automation, while the Helm umbrella chart groups the Kubernetes release units consumed by Argo CD.
+
+At runtime, namespaces create workload boundaries and HPA expresses scaling policy. The PostSync initialization handles the MongoDB replica-set dependency after the release is applied. Prometheus gathers metrics, Grafana presents them, and Loki carries logs. Sealed Secrets lets encrypted secret manifests participate in the same GitOps workflow without committing plain-text values.
+
+## My contribution
+
+Within the team repository, I built and containerized the application, provisioned the AWS infrastructure, and automated the self-managed Kubernetes cluster and CI path. I also implemented the GitOps and Helm delivery flow and deployed the observability and secrets capabilities.
+
+That is the verified scope of my work. The repository and the full platform remain collaborative work, so this case study does not attribute sole ownership of the complete architecture to me.
+
+## Outcomes and learning
+
+The project demonstrates an end-to-end path from application source to a declaratively managed Kubernetes release, with checks before image publication and operating signals after deployment. Its most important lesson is that automation is strongest when every tool owns a clear transition: provision, configure, validate, publish, reconcile, and observe.
+
+It also shows why stateful initialization and secret handling must be designed as first-class parts of delivery. A pipeline is not complete merely because a container starts; it must make dependencies, drift, failures, and runtime behavior visible enough to operate responsibly.

@@ -1,0 +1,43 @@
+---
+import { siteConfig } from '../data/site';
+---
+
+<footer class="site-footer">
+  <div class="page-shell site-footer__inner">
+    <p>© {new Date().getUTCFullYear()} {siteConfig.name}</p>
+    <nav aria-label="Footer links">
+      <a href={`mailto:${siteConfig.email}`}>Email</a>
+      <a href={siteConfig.social.github}>GitHub</a>
+      <a href={siteConfig.social.linkedin}>LinkedIn</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    background: var(--color-canvas);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-block: var(--space-4);
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+
+  .site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+</style>

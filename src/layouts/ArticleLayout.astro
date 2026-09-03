@@ -1,0 +1,305 @@
+---
+import type { MarkdownHeading } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+import ContactCta from '../components/ContactCta.astro';
+import PostCard from '../components/PostCard.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+import TagList from '../components/TagList.astro';
+import { siteConfig } from '../data/site';
+import { slugify } from '../lib/content';
+import type { PostNeighbors } from '../lib/related-posts';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  headings: MarkdownHeading[];
+  readingTime: number;
+  relatedPosts: CollectionEntry<'blog'>[];
+  neighbors: PostNeighbors<CollectionEntry<'blog'>>;
+}
+
+const { post, headings, readingTime, relatedPosts, neighbors } = Astro.props;
+const categoryLabels: Record<string, string> = {
+  devops: 'DevOps',
+  'ml-systems': 'ML Systems',
+  'systems-programming': 'Systems Programming',
+};
+const categoryLabel = categoryLabels[post.data.category] ?? post.data.category;
+const published = post.data.published.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const articleData = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.published.toISOString(),
+  ...(post.data.updated ? { dateModified: post.data.updated.toISOString() } : {}),
+  author: { '@type': 'Person', name: siteConfig.name, url: siteConfig.url },
+  mainEntityOfPage: `${siteConfig.url}/blog/${post.id}/`,
+};
+---
+
+<BaseLayout
+  title={`${post.data.title} | Abdulrahman Gomaa Hassan`}
+  description={post.data.description}
+  {...post.data.image ? { image: post.data.image } : {}}
+  type="article"
+  structuredData={articleData}
+>
+  <article class="article-shell">
+    <header class="article-hero page-shell">
+      <div class="article-hero__meta">
+        <a href={`/blog/category/${slugify(post.data.category)}/`}>{categoryLabel}</a>
+        <time datetime={post.data.published.toISOString()}>{published}</time>
+        <span>{readingTime} min read</span>
+      </div>
+      <h1>{post.data.title}</h1>
+      <p>{post.data.description}</p>
+      <TagList tags={post.data.tags} linked />
+    </header>
+
+    <div class="article-grid page-shell">
+      <aside class="article-grid__toc">
+        <TableOfContents headings={headings} />
+      </aside>
+      <div class="article-prose">
+        <slot />
+      </div>
+    </div>
+
+    <nav class="article-neighbors page-shell" aria-label="Article pagination">
+      {
+        neighbors.previous ? (
+          <a rel="prev" href={`/blog/${neighbors.previous.id}/`}>
+            <span>Previous article</span>
+            <strong>{neighbors.previous.data.title}</strong>
+          </a>
+        ) : (
+          <span class="article-neighbors__empty">
+            <span>Previous article</span>
+            <strong>Start of publication order</strong>
+          </span>
+        )
+      }
+      {
+        neighbors.next ? (
+          <a rel="next" href={`/blog/${neighbors.next.id}/`}>
+            <span>Next article</span>
+            <strong>{neighbors.next.data.title}</strong>
+          </a>
+        ) : (
+          <span class="article-neighbors__empty">
+            <span>Next article</span>
+            <strong>End of publication order</strong>
+          </span>
+        )
+      }
+    </nav>
+
+    {
+      relatedPosts.length > 0 && (
+        <section class="article-related page-shell" aria-labelledby="related-posts-title">
+          <p class="eyebrow">Signal match</p>
+          <h2 id="related-posts-title">Related posts</h2>
+          <div class="article-related__grid">
+            {relatedPosts.map((relatedPost) => (
+              <PostCard post={relatedPost} headingLevel="h3" />
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <div class="article-contact page-shell">
+      <ContactCta />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-shell {
+    padding-block: var(--space-6);
+  }
+
+  .article-hero {
+    max-width: 62rem;
+  }
+
+  .article-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+  }
+
+  .article-hero__meta > :not(:first-child)::before {
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+    content: '//';
+  }
+
+  .article-hero__meta a {
+    text-decoration: none;
+  }
+
+  .article-hero h1 {
+    max-width: 20ch;
+    margin: var(--space-3) 0;
+    font-size: clamp(2.35rem, 7vw, 5.2rem);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .article-hero > p {
+    max-width: 48rem;
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-muted);
+    font-size: 1.08rem;
+  }
+
+  .article-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+
+  .article-grid__toc {
+    order: -1;
+  }
+
+  .article-prose {
+    min-width: 0;
+    max-width: 48rem;
+  }
+
+  .article-prose :global(h2),
+  .article-prose :global(h3) {
+    scroll-margin-top: var(--space-5);
+    line-height: 1.2;
+  }
+
+  .article-prose :global(h2) {
+    margin: var(--space-6) 0 var(--space-3);
+    font-size: clamp(1.65rem, 4vw, 2.25rem);
+  }
+
+  .article-prose :global(h3) {
+    margin: var(--space-5) 0 var(--space-2);
+  }
+
+  .article-prose :global(p),
+  .article-prose :global(li) {
+    color: var(--color-text-muted);
+  }
+
+  .article-prose :global(strong) {
+    color: var(--color-text);
+  }
+
+  .article-prose :global(pre) {
+    overflow-x: auto;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    background: #04101a;
+  }
+
+  .article-prose :global(code) {
+    color: var(--color-cyan-strong);
+    font-family: var(--font-mono);
+  }
+
+  .article-prose :global(:not(pre) > code) {
+    padding: 0.1rem 0.28rem;
+    background: var(--color-surface);
+  }
+
+  .article-prose :global(table) {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  .article-prose :global(th),
+  .article-prose :global(td) {
+    padding: 0.65rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+  }
+
+  .article-prose :global(th) {
+    color: var(--color-cyan-strong);
+    font-family: var(--font-mono);
+  }
+
+  .article-neighbors {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .article-neighbors > :is(a, span) {
+    display: grid;
+    gap: 0.35rem;
+    min-height: 7rem;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    text-decoration: none;
+  }
+
+  .article-neighbors > :is(a, span) > span {
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+  }
+
+  .article-neighbors__empty {
+    color: var(--color-text-muted);
+  }
+
+  .article-related,
+  .article-contact {
+    margin-top: var(--space-6);
+  }
+
+  .article-related h2 {
+    margin: var(--space-1) 0 var(--space-4);
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .article-related__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 62rem) {
+    .article-grid {
+      grid-template-columns: minmax(14rem, 18rem) minmax(0, 48rem);
+      align-items: start;
+      justify-content: center;
+    }
+
+    .article-grid__toc {
+      position: sticky;
+      top: var(--space-3);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .article-neighbors {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

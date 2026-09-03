@@ -1,0 +1,185 @@
+---
+interface DiagramNode {
+  title: string;
+  detail: string;
+}
+
+interface Diagram {
+  label: string;
+  mode: 'sequence' | 'groups';
+  nodes: DiagramNode[];
+}
+
+const diagrams: Record<string, Diagram> = {
+  'end-to-end-devops-pipeline': {
+    label: 'Delivery flow architecture',
+    mode: 'sequence',
+    nodes: [
+      { title: 'Application + artifact', detail: 'MERN application → Docker image' },
+      { title: 'Infrastructure + cluster', detail: 'Terraform on AWS → Ansible → Kubernetes' },
+      { title: 'Validation + release', detail: 'Jenkins → SonarQube + Trivy → Argo CD + Helm' },
+      {
+        title: 'Runtime operations',
+        detail:
+          'Namespaces + HPA · MongoDB PostSync · Prometheus + Grafana + Loki · Sealed Secrets',
+      },
+    ],
+  },
+  'smart-attendance-system': {
+    label: 'Smart attendance cooperating stages',
+    mode: 'sequence',
+    nodes: [
+      { title: 'Frame acquisition + detection', detail: 'Visual inputs for downstream models' },
+      { title: 'Separate inference signals', detail: 'Identity · attention · emotion' },
+      { title: 'Application orchestration', detail: 'Active attendance workflow' },
+      { title: 'PySide6 presentation', detail: 'Model output + user actions' },
+      { title: 'SQLite persistence', detail: 'Durable application state' },
+    ],
+  },
+  'fifa-career-mode-ai-assistant': {
+    label: 'Distinct football decision domains',
+    mode: 'groups',
+    nodes: [
+      { title: 'Player understanding', detail: 'Position + rating analysis' },
+      { title: 'Squad planning', detail: 'Player development + roster information' },
+      { title: 'Match analysis', detail: 'Shot outcomes + winner prediction' },
+      { title: 'Transfer decisions', detail: 'Injury risk + performance + market value' },
+      { title: 'Decision presentation', detail: 'Dashboards + generated scouting document' },
+    ],
+  },
+  'warsha-hub': {
+    label: 'Warsha Hub conceptual layers',
+    mode: 'groups',
+    nodes: [
+      { title: 'Persistence', detail: 'SQLite entities + relationships' },
+      { title: 'Direct retrieval', detail: 'Trie username search' },
+      {
+        title: 'Ranking + recommendation',
+        detail: 'Feed ranking · Jaccard/cosine similarity · KNN',
+      },
+      { title: 'Interaction + explanation', detail: 'PySide6 + social-graph visualization' },
+    ],
+  },
+  'road-to-my-own-shell': {
+    label: 'Femto-to-Micro shell progression',
+    mode: 'sequence',
+    nodes: [
+      { title: 'Femto', detail: 'Smallest utility-oriented foundation' },
+      { title: 'Pico', detail: 'Additional command-environment behavior' },
+      { title: 'Nano', detail: 'Shell responsibilities around command execution' },
+      { title: 'Micro', detail: 'Built-ins · processes · redirection · variables · environment' },
+    ],
+  },
+};
+
+interface Props {
+  projectId: string;
+}
+
+const { projectId } = Astro.props;
+const diagram = diagrams[projectId];
+---
+
+{
+  diagram && (
+    <figure
+      class:list={['architecture', `architecture--${diagram.mode}`]}
+      style={`--architecture-columns: ${diagram.nodes.length}`}
+    >
+      <figcaption>{diagram.label}</figcaption>
+      <ol aria-label={diagram.label}>
+        {diagram.nodes.map((node, index) => (
+          <li>
+            <span class="architecture__index">{String(index + 1).padStart(2, '0')}</span>
+            <strong>{node.title}</strong>
+            <span>{node.detail}</span>
+          </li>
+        ))}
+      </ol>
+    </figure>
+  )
+}
+
+<style>
+  .architecture {
+    margin: 0;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface);
+  }
+
+  .architecture figcaption {
+    margin-bottom: var(--space-3);
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .architecture ol {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .architecture--sequence ol {
+    grid-template-columns: repeat(var(--architecture-columns), minmax(0, 1fr));
+  }
+
+  .architecture li {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    min-height: 8.5rem;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    background: var(--color-canvas);
+  }
+
+  .architecture--sequence li:not(:last-child)::after {
+    position: absolute;
+    z-index: 1;
+    right: -1.25rem;
+    top: 50%;
+    width: 1.25rem;
+    color: var(--color-amber);
+    content: '→';
+    font-family: var(--font-mono);
+    text-align: center;
+    transform: translateY(-50%);
+  }
+
+  .architecture__index {
+    color: var(--color-amber);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .architecture strong {
+    line-height: 1.2;
+  }
+
+  .architecture li > span:last-child {
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 47.99rem) {
+    .architecture--sequence ol {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .architecture--sequence li:not(:last-child)::after {
+      right: 50%;
+      top: auto;
+      bottom: -1.35rem;
+      transform: translateX(50%) rotate(90deg);
+    }
+  }
+</style>
