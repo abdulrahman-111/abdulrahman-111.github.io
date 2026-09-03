@@ -96,6 +96,19 @@ The blog refinement will use the following patterns without copying Cactus's imp
 
 The current navy engineering grid, cyan and amber accents, typography, components, route structure, and responsive behavior remain authoritative. Tailwind, Pagefind, Satori, Astro Icon, webmentions, notes, light mode, and Cactus theme synchronization are out of scope.
 
+## Responsive Media
+
+Every visible image must fit its content container at mobile, tablet, and desktop widths without distortion or horizontal overflow.
+
+- Global content images use `max-inline-size: 100%` and `block-size: auto` so their intrinsic aspect ratios are preserved.
+- Article images are centered within the prose column and may not exceed its width.
+- Project media uses the full available project-visual width with automatic height; it is never stretched to a fixed height.
+- Certificate previews retain a consistent card frame and use `object-fit: contain`, ensuring the complete credential remains visible rather than cropped.
+- Explicit `width` and `height` attributes remain on local raster images to reserve layout space and reduce layout shift.
+- Small viewports must not create page-level horizontal scrolling. Wide code blocks and tables continue to scroll only inside their own containers.
+
+Any content image imported with a Medium article will be stored locally only when it is part of the article itself. Author avatars, Medium interface graphics, duplicate thumbnails, and decorative publication chrome will not be copied. Imported raster media will be normalized to WebP with a practical display resolution before it is committed; the layout will not depend on Medium's image CDN.
+
 ## Writing and Syntax Review
 
 The refinement includes a complete editorial pass over user-visible text in:
@@ -150,6 +163,7 @@ The implementation will primarily affect:
 - `src/layouts/ArticleLayout.astro` for original-publication attribution and article presentation.
 - `src/pages/about.astro` and relevant page/component copy for the editorial pass.
 - `src/content/blog/*.mdx` for the four imports and copyediting.
+- `src/styles/global.css`, `src/components/CertificationCard.astro`, and project/article media styles for responsive image containment.
 - `.gitignore` and the approved development-only files for cleanup.
 - Unit and end-to-end tests for the expanded content and links.
 
@@ -165,8 +179,9 @@ The change is complete when:
 6. The editorial pass introduces no unsupported claims and no changes to imported code.
 7. The current tree contains no development-only Superpowers documents or certificate-generation script.
 8. `.gitignore` covers the approved local and generated artifacts.
-9. Formatting, linting, Astro type checks, unit tests, Playwright tests, axe checks, internal-link checks, production build, and responsive overflow checks pass.
-10. GitHub Actions CI and deployment succeed, and the live site exposes the updated links and articles.
+9. Article, project, and certificate images preserve their aspect ratios, fit their containers, and create no page-level overflow at 390×844, 768×1024, or 1440×900.
+10. Formatting, linting, Astro type checks, unit tests, Playwright tests, axe checks, internal-link checks, production build, and responsive overflow checks pass.
+11. GitHub Actions CI and deployment succeed, and the live site exposes the updated links and articles.
 
 ## Delivery
 
