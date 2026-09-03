@@ -25,7 +25,7 @@ const approvedProjects = [
 const approvedArticles = [
   {
     id: 'from-terraform-to-gitops',
-    title: 'From Terraform to GitOps: Designing Clear Delivery Boundaries',
+    title: 'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline',
   },
   {
     id: 'designing-a-real-time-multi-model-smart-attendance-pipeline',
@@ -33,7 +33,7 @@ const approvedArticles = [
   },
   {
     id: 'building-a-unix-shell-in-stages',
-    title: 'Building a Unix Shell in Stages',
+    title: 'Building a Unix Shell in Stages: Femto to Micro',
   },
 ] as const;
 
