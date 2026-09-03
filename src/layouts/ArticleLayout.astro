@@ -5,6 +5,7 @@ import ContactCta from '../components/ContactCta.astro';
 import PostCard from '../components/PostCard.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import TagList from '../components/TagList.astro';
+import { siteConfig } from '../data/site';
 import { slugify } from '../lib/content';
 import type { PostNeighbors } from '../lib/related-posts';
 import BaseLayout from './BaseLayout.astro';
@@ -30,6 +31,16 @@ const published = post.data.published.toLocaleDateString('en-US', {
   day: 'numeric',
   timeZone: 'UTC',
 });
+const articleData = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.published.toISOString(),
+  ...(post.data.updated ? { dateModified: post.data.updated.toISOString() } : {}),
+  author: { '@type': 'Person', name: siteConfig.name, url: siteConfig.url },
+  mainEntityOfPage: `${siteConfig.url}/blog/${post.id}/`,
+};
 ---
 
 <BaseLayout
@@ -37,6 +48,7 @@ const published = post.data.published.toLocaleDateString('en-US', {
   description={post.data.description}
   {...post.data.image ? { image: post.data.image } : {}}
   type="article"
+  structuredData={articleData}
 >
   <article class="article-shell">
     <header class="article-hero page-shell">

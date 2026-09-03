@@ -12,8 +12,27 @@ interface Props {
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const { title, description, image, type = 'website', structuredData } = Astro.props;
+const {
+  title,
+  description,
+  image = '/social-card.webp',
+  type = 'website',
+  structuredData,
+} = Astro.props;
 const canonical = new URL(Astro.url.pathname, siteConfig.url).toString();
+const personData = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: siteConfig.name,
+  url: siteConfig.url,
+  email: `mailto:${siteConfig.email}`,
+  jobTitle: siteConfig.role,
+  address: { '@type': 'PostalAddress', addressLocality: 'Cairo', addressCountry: 'EG' },
+  sameAs: [siteConfig.social.github, siteConfig.social.linkedin],
+};
+const jsonLd = structuredData
+  ? [personData, ...(Array.isArray(structuredData) ? structuredData : [structuredData])]
+  : personData;
 ---
 
 <!doctype html>
@@ -27,13 +46,20 @@ const canonical = new URL(Astro.url.pathname, siteConfig.url).toString();
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    {image && <meta property="og:image" content={new URL(image, siteConfig.url).toString()} />}
+    <meta property="og:image" content={new URL(image, siteConfig.url).toString()} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(image, siteConfig.url).toString()} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteConfig.name} writing`}
+      href="/rss.xml"
+    />
     <title>{title}</title>
-    {
-      structuredData && (
-        <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
-      )
-    }
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
