@@ -37,10 +37,26 @@ import { siteConfig } from '../data/site';
   const toggle = document.querySelector<HTMLButtonElement>('.site-header__menu-toggle');
   const navigation = document.querySelector<HTMLElement>('#primary-navigation');
 
+  const closeNavigation = () => {
+    toggle?.setAttribute('aria-expanded', 'false');
+    navigation?.classList.remove('is-open');
+  };
+
   toggle?.addEventListener('click', () => {
     const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
     toggle.setAttribute('aria-expanded', String(!isExpanded));
     navigation?.classList.toggle('is-open', !isExpanded);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      closeNavigation();
+      toggle.focus();
+    }
+  });
+
+  navigation?.addEventListener('click', (event) => {
+    if ((event.target as Element).closest('a')) closeNavigation();
   });
 </script>
 
