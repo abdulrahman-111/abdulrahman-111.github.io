@@ -18,6 +18,13 @@ export const blogSchema = z.object({
   tags: z.array(z.string().trim().min(1)).min(1),
   category: z.enum(blogCategories),
   image: z.string().url().optional(),
+  sourceUrl: z
+    .string()
+    .url()
+    .refine((url) => url.startsWith('https://'), {
+      message: 'sourceUrl must use HTTPS',
+    })
+    .optional(),
   draft: z.boolean(),
 });
 

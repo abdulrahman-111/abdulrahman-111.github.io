@@ -30,9 +30,9 @@ test('certification page exposes all redacted previews and domain groups', async
   await expect(page.locator('img[src^="/certificates/"]')).toHaveCount(16);
   for (const group of [
     'Professional',
-    'ML / AI',
-    'Cloud / DevOps',
-    'Programming / Systems',
+    'ML/AI',
+    'Cloud and DevOps',
+    'Programming and systems',
     'Networking',
     'Language',
   ]) {
@@ -42,12 +42,12 @@ test('certification page exposes all redacted previews and domain groups', async
 
 test('resume page links to both labeled PDF downloads', async ({ page }) => {
   await page.goto('/resume/');
-  await expect(page.getByRole('link', { name: /Download ML \/ AI résumé/i })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: /Download ML\/AI résumé/i })).toHaveAttribute(
     'href',
     '/resume/ml-ai-resume.pdf',
   );
   await expect(
-    page.getByRole('link', { name: /Download DevOps \/ Cloud résumé/i }),
+    page.getByRole('link', { name: /Download DevOps and Cloud résumé/i }),
   ).toHaveAttribute('href', '/resume/devops-cloud-resume.pdf');
 });
 

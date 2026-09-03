@@ -35,7 +35,7 @@ const published = post.data.published.toLocaleDateString('en-US', {
 <style>
   .post-card {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-2);
     min-height: 100%;
     padding: var(--space-4);
     border: 1px solid var(--color-border);
@@ -75,6 +75,7 @@ const published = post.data.published.toLocaleDateString('en-US', {
 
   .post-card__link {
     align-self: end;
+    margin-top: var(--space-1);
     color: var(--color-cyan-strong);
     font-family: var(--font-mono);
     font-size: 0.82rem;

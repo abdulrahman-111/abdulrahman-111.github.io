@@ -1,0 +1,283 @@
+---
+title: 'My Simple Guide to Git & GitHub: What I Learned While Figuring Things Out'
+description: 'A practical first-person guide to the Git and GitHub concepts, commands, and workflow I learned while getting started.'
+published: 2025-12-04
+tags: ['Git', 'GitHub', 'DevOps']
+category: 'devops'
+sourceUrl: 'https://medium.com/@agofficial/my-simple-guide-to-git-github-what-i-learned-while-figuring-things-out-899d02b985fc'
+draft: false
+---
+
+When I first started working on real projects, I kept hearing the same words everywhere: Git, GitHub, commits, branches, push, and pull.
+
+Everyone around me seemed to already know how it worked—meanwhile, I was still asking myself:
+
+> “Why do I even need Git? Can’t I just save my files normally?”
+
+Eventually, after enough broken projects, overwritten code, and late-night panic moments, I finally sat down and properly learned Git.
+
+This post is a simple story of what I learned—written exactly the way I wish someone had explained it to me at the beginning.
+
+---
+
+## What even is Git?
+
+Git is basically a version-control system that runs on your computer.
+
+Imagine a tool that:
+
+- Tracks every change you make.
+- Saves snapshots of your work (commits).
+- Lets you compare versions.
+- Allows you to go back in time whenever you mess something up.
+
+That’s Git.
+
+Your project folder becomes a repository—a place where Git keeps the full history of your work.
+
+---
+
+## And what about GitHub?
+
+GitHub is simply a cloud home for your Git repositories.
+
+- Git = local on your machine.
+- GitHub = online storage + collaboration.
+
+Why do we use GitHub?
+
+- To share code with teammates.
+- To access the repository from anywhere.
+- To collaborate safely using pull requests.
+- To keep a backup of our projects.
+
+Git lives on your computer.
+
+GitHub lives on the internet.
+
+Together, they make teamwork and version history effortless.
+
+---
+
+## Local repository vs. remote repository
+
+When you start a project on your machine and type:
+
+```bash
+git init
+```
+
+Congratulations—you’ve just created your local repository.
+
+But for your team to see your work, you need a remote repository on GitHub.
+
+You connect both using:
+
+```bash
+git remote add origin <URL>
+```
+
+`origin` is simply the name Git uses to refer to your GitHub repository.
+
+After that, Git knows where to push and pull your code.
+
+---
+
+## SSH keys (your password-free access)
+
+With SSH keys, GitHub can recognize your machine without asking for a password.
+
+- Private key → stays safely on your computer.
+- Public key → uploaded to GitHub.
+
+Create it:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+View your public key:
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+Add it to GitHub → done.
+
+## The four stages of Git
+
+One of the most important concepts in Git is its structure for saving changes:
+
+1. Working directory—where your actual files live.
+2. Staging area—where you prepare changes for the next snapshot.
+3. Local repository—where commits (snapshots) are stored.
+4. Remote repository (GitHub)—where your code is shared online.
+
+A typical flow:
+
+```bash
+git add .
+git commit -m "message"
+git push
+```
+
+---
+
+## The Git workflow: how everything moves behind the scenes
+
+Understanding Git became much easier for me when I realized that it isn’t just a set of random commands—it’s a cycle your changes pass through.
+
+Here’s what the workflow actually looks like:
+
+### 1. Write code (working directory)
+
+You edit your files. New ones are untracked, and edited ones are modified.
+
+### 2. Stage the changes (staging area)
+
+Select what goes into the next snapshot:
+
+```bash
+git add <file>
+# or everything
+git add .
+```
+
+This step lets you control exactly what you want to save.
+
+### 3. Commit your snapshot (local repository)
+
+This saves your changes into Git’s history:
+
+```bash
+git commit -m "message
+```
+
+Now you have a new snapshot of your project stored locally.
+
+### 4. Push to GitHub (remote repository)
+
+When you’re ready to share or back up your work:
+
+```bash
+git push -u origin main # for 1st time pushing this branch
+```
+
+And to download others’ work:
+
+```bash
+git pull
+```
+
+Pull = fetch + merge.
+
+### Complete workflow overview
+
+```text
+Write Code
+   ↓
+git add
+   ↓
+git commit
+   ↓
+git push  →  GitHub
+   ↑               ↓
+   └───────── git pull ─────────┘
+```
+
+Once this cycle clicks, Git becomes predictable and even enjoyable.
+
+## Branches: your safe playground
+
+When you want to try a new feature but don’t want to break your whole project, you create a branch:
+
+```bash
+git checkout -b feature-login
+```
+
+Branches let you:
+
+- Experiment safely.
+- Work separately.
+- Keep `main` clean.
+- Merge only when ready.
+
+Merging back:
+
+```bash
+git merge feature-login
+```
+
+Delete when done:
+
+```bash
+git branch -d feature-login
+```
+
+---
+
+## `.gitignore`: the “ignore this” list
+
+Sometimes you have files you never want Git to track:
+
+- Log files.
+- Cache files.
+- Build folders.
+- Environment secrets.
+
+Create a `.gitignore` file and list them:
+
+```text
+node_modules/
+env/
+*.log
+```
+
+Git will never touch them.
+
+---
+
+## Cloning: getting a project for the first time
+
+To download a project from GitHub:
+
+```bash
+git clone git@github.com:username/repo.gi
+```
+
+This gives you the full project + history.
+
+After that, you don’t clone again. You just pull new updates.
+
+---
+
+## Collaboration: pull requests
+
+If you push your feature to GitHub:
+
+```bash
+git push -u origin feature-login
+```
+
+Then, on GitHub, you create a pull request.
+
+This allows:
+
+- Code review.
+- Discussion.
+- Approval.
+- Safe merging into `main`.
+
+Pull requests are the heart of team collaboration.
+
+---
+
+## Final thoughts
+
+Learning Git wasn’t easy at first—I kept confusing commands, breaking things, and Googling errors. But once everything clicked, Git became one of the most powerful tools in my workflow.
+
+If you’re just starting out, remember:
+
+Git is not something to memorize. It’s something you get comfortable with by using it every day.
+
+Keep experimenting, keep committing, and soon Git will feel like second nature.

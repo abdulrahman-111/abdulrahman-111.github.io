@@ -1,6 +1,7 @@
 ---
 import ContactCta from '../components/ContactCta.astro';
 import SectionHeader from '../components/SectionHeader.astro';
+import SocialLinks from '../components/SocialLinks.astro';
 import { siteConfig } from '../data/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
@@ -18,14 +19,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <div class="about__intro panel">
       <p>
-        I’m a Computer Engineering student at Egypt University of Informatics, building toward roles
-        where machine learning and platform engineering meet. My work ranges from computer-vision
+        I’m a Computer Engineering student at Egypt University of Informatics, preparing for roles
+        where machine learning and platform engineering meet. My work ranges from computer vision
         workflows and decision-support systems to Kubernetes delivery, cloud automation, and Linux
         process management.
       </p>
       <p>
         I care about explicit ownership, repeatable delivery, and technical explanations that
-        separate verified contribution from whole-project capability.
+        separate verified contributions from whole-project capabilities.
       </p>
     </div>
 
@@ -96,6 +97,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </p>
     </section>
 
+    <section class="about__profiles panel" aria-labelledby="profiles-title">
+      <p class="eyebrow">Public channels</p>
+      <h2 id="profiles-title">Profiles and contact</h2>
+      <p>Explore my public work and writing, or contact me directly by email.</p>
+      <SocialLinks ariaLabel="About profile links" />
+    </section>
+
     <ContactCta />
   </section>
 </BaseLayout>
@@ -131,6 +139,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .panel p,
   .timeline__item > p:last-child {
     color: var(--color-text-muted);
+  }
+  .about__profiles {
+    display: grid;
+    gap: var(--space-2);
+  }
+  .about__profiles h2,
+  .about__profiles p {
+    margin: 0;
   }
   .timeline {
     display: grid;

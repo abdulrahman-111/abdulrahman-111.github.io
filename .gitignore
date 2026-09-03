@@ -1,9 +1,30 @@
+# Dependencies and Astro output
 node_modules/
 dist/
 .astro/
+
+# Tests, coverage, logs, and caches
 coverage/
 playwright-report/
 test-results/
+*.log
+.cache/
+
+# Local worktrees and tools
+/worktrees/
+/.worktrees/
+/.local-tools/
+/docs/superpowers/
+
+# LaTeX build artifacts
+*.aux
+*.fls
+*.fdb_latexmk
+*.out
+*.synctex.gz
+*.toc
+
+# Local environment files
 .env
 .env.*
 !.env.example

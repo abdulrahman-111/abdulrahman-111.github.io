@@ -8,6 +8,28 @@ test('project and article route families expose their evidence navigation', asyn
   await expect(page.getByRole('navigation', { name: 'On this page' })).toBeVisible();
 });
 
+test('Medium imports show their original source and the blog lists seven posts newest first', async ({
+  page,
+}) => {
+  await page.goto('/blog/my-simple-guide-to-git-and-github/');
+  await expect(page.getByRole('link', { name: 'Originally published on Medium' })).toHaveAttribute(
+    'href',
+    'https://medium.com/@agofficial/my-simple-guide-to-git-github-what-i-learned-while-figuring-things-out-899d02b985fc',
+  );
+
+  await page.goto('/blog/');
+  const titles = await page.locator('.post-card h2').allTextContents();
+  expect(titles).toEqual([
+    'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline',
+    'Designing a Real-Time Multi-Model Smart Attendance Pipeline',
+    'Building a Unix Shell in Stages: Femto to Micro',
+    'My Simple Guide to Git & GitHub: What I Learned While Figuring Things Out',
+    'My Journey Learning Bash Scripting: From Zero to Command Creation',
+    'From mycat to My Own Shell — a Comprehensive Story',
+    'My First Linux Utility: A Step Toward Building My Own Shell',
+  ]);
+});
+
 test('sequence architecture aligns with its vertical and horizontal connectors', async ({
   page,
 }) => {

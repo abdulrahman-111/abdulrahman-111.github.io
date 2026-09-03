@@ -28,7 +28,12 @@ const personData = {
   email: `mailto:${siteConfig.email}`,
   jobTitle: siteConfig.role,
   address: { '@type': 'PostalAddress', addressLocality: 'Cairo', addressCountry: 'EG' },
-  sameAs: [siteConfig.social.github, siteConfig.social.linkedin],
+  sameAs: [
+    siteConfig.social.github,
+    siteConfig.social.linkedin,
+    siteConfig.social.kaggle,
+    siteConfig.social.medium,
+  ],
 };
 const jsonLd = structuredData
   ? [personData, ...(Array.isArray(structuredData) ? structuredData : [structuredData])]

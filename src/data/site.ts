@@ -17,7 +17,7 @@ export interface SiteConfig {
   url: string;
   location: string;
   email: string;
-  social: { github: string; linkedin: string };
+  social: { github: string; linkedin: string; kaggle: string; medium: string };
   navigation: NavigationItem[];
   education: { institution: string; detail: string; period: string }[];
   experience: { organization: string; role: string; period: string; summary: string }[];
@@ -37,6 +37,8 @@ export const siteConfig: SiteConfig = {
   social: {
     github: 'https://github.com/abdulrahman-111',
     linkedin: 'https://www.linkedin.com/in/abdulrahman-gomaa',
+    kaggle: 'https://www.kaggle.com/abdulrahmanh05',
+    medium: 'https://medium.com/@agofficial',
   },
   navigation: [
     { label: 'Home', href: '/' },
@@ -44,7 +46,7 @@ export const siteConfig: SiteConfig = {
     { label: 'Writing', href: '/blog/' },
     { label: 'About', href: '/about/' },
     { label: 'Credentials', href: '/certifications/' },
-    { label: 'Resume', href: '/resume/' },
+    { label: 'Résumé', href: '/resume/' },
   ],
   education: [
     {
@@ -64,7 +66,7 @@ export const siteConfig: SiteConfig = {
       role: 'DevOps Intern',
       period: 'Nov 2025 — Jun 2026',
       summary:
-        'Built practical depth across containers, configuration automation, CI/CD, Kubernetes, GitOps, observability, and secrets management.',
+        'Developed practical experience with containers, configuration automation, CI/CD, Kubernetes, GitOps, observability, and secrets management.',
     },
     {
       organization: 'National Telecommunication Institute (NTI)',
@@ -83,20 +85,20 @@ export const siteConfig: SiteConfig = {
   ],
   skillGroups: [
     { label: 'Languages', skills: ['Python', 'C++', 'C', 'SQL', 'Shell scripting'] },
-    { label: 'ML & data', skills: ['TensorFlow', 'Scikit-learn', 'Pandas', 'NumPy', 'OpenCV'] },
+    { label: 'ML and data', skills: ['TensorFlow', 'Scikit-learn', 'Pandas', 'NumPy', 'OpenCV'] },
     { label: 'Platform', skills: ['Linux', 'Docker', 'Kubernetes', 'Helm', 'Argo CD', 'AWS'] },
     { label: 'Automation', skills: ['Terraform', 'Ansible', 'Jenkins', 'GitHub Actions'] },
     { label: 'Operations', skills: ['Prometheus', 'Grafana', 'Loki', 'SonarQube', 'Trivy'] },
   ],
   resumes: [
     {
-      label: 'ML / AI résumé',
+      label: 'ML/AI résumé',
       focus:
         'Machine learning pipelines, computer vision, data analysis, and supporting infrastructure.',
       href: '/resume/ml-ai-resume.pdf',
     },
     {
-      label: 'DevOps / Cloud résumé',
+      label: 'DevOps and Cloud résumé',
       focus:
         'Cloud infrastructure, Kubernetes, GitOps, CI/CD, observability, and platform automation.',
       href: '/resume/devops-cloud-resume.pdf',

@@ -56,6 +56,13 @@ const articleData = {
         <a href={`/blog/category/${slugify(post.data.category)}/`}>{categoryLabel}</a>
         <time datetime={post.data.published.toISOString()}>{published}</time>
         <span>{readingTime} min read</span>
+        {
+          post.data.sourceUrl && (
+            <a class="article-source" href={post.data.sourceUrl} target="_blank" rel="noreferrer">
+              Originally published on Medium
+            </a>
+          )
+        }
       </div>
       <h1>{post.data.title}</h1>
       <p>{post.data.description}</p>
@@ -149,6 +156,10 @@ const articleData = {
     text-decoration: none;
   }
 
+  .article-source {
+    color: var(--color-amber);
+  }
+
   .article-hero h1 {
     max-width: 20ch;
     margin: var(--space-3) 0;
@@ -198,6 +209,54 @@ const articleData = {
   .article-prose :global(p),
   .article-prose :global(li) {
     color: var(--color-text-muted);
+  }
+
+  .article-prose :global(p),
+  .article-prose :global(ul),
+  .article-prose :global(ol),
+  .article-prose :global(blockquote),
+  .article-prose :global(figure) {
+    margin-block: 0 var(--space-3);
+  }
+
+  .article-prose :global(li + li) {
+    margin-top: 0.35rem;
+  }
+
+  .article-prose :global(blockquote) {
+    padding-left: var(--space-3);
+    border-left: 0.2rem solid var(--color-cyan);
+  }
+
+  .article-prose :global(blockquote > :last-child) {
+    margin-bottom: 0;
+  }
+
+  .article-prose :global(hr) {
+    margin-block: var(--space-5);
+    border: 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .article-prose :global(figure) {
+    display: grid;
+    gap: var(--space-2);
+    margin-inline: 0;
+  }
+
+  .article-prose :global(figure img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-inline: auto;
+    border: 1px solid var(--color-border);
+  }
+
+  .article-prose :global(figcaption) {
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    text-align: center;
   }
 
   .article-prose :global(strong) {

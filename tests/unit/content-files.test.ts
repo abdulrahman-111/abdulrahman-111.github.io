@@ -26,14 +26,48 @@ const approvedArticles = [
   {
     id: 'from-terraform-to-gitops',
     title: 'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline',
+    published: '2026-09-02',
+    sourceUrl: undefined,
   },
   {
     id: 'designing-a-real-time-multi-model-smart-attendance-pipeline',
     title: 'Designing a Real-Time Multi-Model Smart Attendance Pipeline',
+    published: '2026-09-01',
+    sourceUrl: undefined,
   },
   {
     id: 'building-a-unix-shell-in-stages',
     title: 'Building a Unix Shell in Stages: Femto to Micro',
+    published: '2026-08-31',
+    sourceUrl: undefined,
+  },
+  {
+    id: 'my-simple-guide-to-git-and-github',
+    title: 'My Simple Guide to Git & GitHub: What I Learned While Figuring Things Out',
+    published: '2025-12-04',
+    sourceUrl:
+      'https://medium.com/@agofficial/my-simple-guide-to-git-github-what-i-learned-while-figuring-things-out-899d02b985fc',
+  },
+  {
+    id: 'my-journey-learning-bash-scripting',
+    title: 'My Journey Learning Bash Scripting: From Zero to Command Creation',
+    published: '2025-11-22',
+    sourceUrl:
+      'https://medium.com/@agofficial/my-journey-learning-bash-scripting-from-zero-to-command-creation-e2afd645db16',
+  },
+  {
+    id: 'from-mycat-to-my-own-shell',
+    title: 'From mycat to My Own Shell — a Comprehensive Story',
+    published: '2025-08-29',
+    sourceUrl:
+      'https://medium.com/@agofficial/from-mycat-to-my-own-shell-a-comprehensive-story-3cc98de52957',
+  },
+  {
+    id: 'my-first-linux-utility',
+    title: 'My First Linux Utility: A Step Toward Building My Own Shell',
+    published: '2025-08-24',
+    sourceUrl:
+      'https://medium.com/@agofficial/my-first-linux-utility-a-step-toward-building-my-own-shell-dc05b7b82872',
   },
 ] as const;
 
@@ -84,6 +118,12 @@ function readBoolean(frontmatter: string, key: string, file: string) {
   return value === 'true';
 }
 
+function readOptionalScalar(frontmatter: string, key: string, file: string) {
+  return new RegExp(`^${key}:`, 'm').test(frontmatter)
+    ? readScalar(frontmatter, key, file)
+    : undefined;
+}
+
 describe('content inventory', () => {
   it('reads publication state only from the delimited opening frontmatter', () => {
     const source = `---
@@ -130,6 +170,8 @@ draft: false
 
         return {
           title: readScalar(frontmatter, 'title', file),
+          published: readScalar(frontmatter, 'published', file),
+          sourceUrl: readOptionalScalar(frontmatter, 'sourceUrl', file),
           draft: readBoolean(frontmatter, 'draft', file),
         };
       }),
@@ -139,6 +181,31 @@ draft: false
       approvedProjects.map(({ title, rank }) => ({ title, rank })),
     );
     expect(articles.map(({ title }) => title)).toEqual(approvedArticles.map(({ title }) => title));
-    expect(articles.map(({ draft }) => draft)).toEqual([false, false, false]);
+    expect(articles.map(({ published }) => published)).toEqual(
+      approvedArticles.map(({ published }) => published),
+    );
+    expect(articles.map(({ sourceUrl }) => sourceUrl)).toEqual(
+      approvedArticles.map(({ sourceUrl }) => sourceUrl),
+    );
+    expect(articles.map(({ draft }) => draft)).toEqual(Array(7).fill(false));
+  });
+
+  it('preserves the original code in imported Medium articles', async () => {
+    const articlesRoot = join(process.cwd(), 'src/content/blog');
+    const [gitGuide, bashJourney, shellStory, firstUtility] = await Promise.all([
+      readFile(join(articlesRoot, 'my-simple-guide-to-git-and-github.mdx'), 'utf8'),
+      readFile(join(articlesRoot, 'my-journey-learning-bash-scripting.mdx'), 'utf8'),
+      readFile(join(articlesRoot, 'from-mycat-to-my-own-shell.mdx'), 'utf8'),
+      readFile(join(articlesRoot, 'my-first-linux-utility.mdx'), 'utf8'),
+    ]);
+
+    expect(gitGuide).toContain('git commit -m "message');
+    expect(gitGuide).toContain('git clone git@github.com:username/repo.gi');
+    expect(bashJourney).toContain('useradd -md /home/$username $username');
+    expect(bashJourney).toContain('source /home/abdo/linux_scripts/modules/func1');
+    expect(shellStory).toContain(
+      'write(1, buffer, strlen(buffer)); // <-- this is wrong for binary data',
+    );
+    expect(firstUtility).toContain('int fd = open("/home/abdo/Desktop/test.txt", O_RDONLY);');
   });
 });

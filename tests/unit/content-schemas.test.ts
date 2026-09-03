@@ -43,6 +43,27 @@ describe('content schemas', () => {
     }
   });
 
+  it('accepts an optional HTTPS source URL for a blog entry', () => {
+    const result = blogSchema.safeParse({
+      ...validBlog,
+      sourceUrl: 'https://medium.com/@agofficial/example-123',
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.sourceUrl).toBe('https://medium.com/@agofficial/example-123');
+    }
+  });
+
+  it('rejects a non-HTTPS source URL for a blog entry', () => {
+    expect(
+      blogSchema.safeParse({
+        ...validBlog,
+        sourceUrl: 'http://medium.com/@agofficial/example-123',
+      }).success,
+    ).toBe(false);
+  });
+
   it('rejects a blog entry outside the approved category enum', () => {
     expect(blogSchema.safeParse({ ...validBlog, category: 'frontend' }).success).toBe(false);
   });
