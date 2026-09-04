@@ -27,7 +27,7 @@ const issued = certification.issued
     height="900"
   />
   <div class="credential-card__body">
-    <p class="credential-card__meta">{certification.issuer}{issued && ` // ${issued}`}</p>
+    <p class="credential-card__meta">{certification.issuer}{issued && ` · ${issued}`}</p>
     <Heading>{certification.name}</Heading>
     <ul aria-label="Credential skills">
       {certification.skills.map((skill) => <li>{skill}</li>)}
@@ -47,15 +47,26 @@ const issued = certification.issued
     display: grid;
     min-height: 100%;
     overflow: hidden;
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
     background: var(--color-surface);
+    box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
+    transition:
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .credential-card:is(:hover, :focus-within) {
+    transform: translateY(-0.25rem);
+    border-color: var(--color-accent);
+    box-shadow: 0 0.875rem 2.25rem rgb(2 12 27 / 45%);
   }
 
   .credential-card img {
     display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: contain;
+    height: auto;
     border-bottom: 1px solid var(--color-border);
     background: var(--color-canvas);
   }
@@ -69,7 +80,7 @@ const issued = certification.issued
 
   .credential-card__meta {
     margin: 0;
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.72rem;
     text-transform: uppercase;
@@ -91,16 +102,26 @@ const issued = certification.issued
   }
 
   .credential-card li {
-    padding: 0.15rem 0.4rem;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-muted);
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.68rem;
   }
 
   .credential-card a {
-    color: var(--color-cyan-strong);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.78rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .credential-card:is(:hover, :focus-within) {
+      transform: none;
+    }
   }
 </style>

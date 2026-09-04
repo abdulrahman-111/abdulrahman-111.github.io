@@ -25,6 +25,7 @@ export const blogSchema = z.object({
       message: 'sourceUrl must use HTTPS',
     })
     .optional(),
+  featured: z.boolean().default(false),
   draft: z.boolean(),
 });
 

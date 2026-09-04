@@ -5,7 +5,7 @@ import { siteConfig } from '../data/site';
 
 <footer class="site-footer">
   <div class="page-shell site-footer__inner">
-    <p>© {new Date().getUTCFullYear()} {siteConfig.name}</p>
+    <p>Designed and built by {siteConfig.name} with Astro. Deployed on GitHub Pages.</p>
     <nav aria-label="Footer links">
       <SocialLinks ariaLabel="Footer profile links" />
       <a href="/rss.xml">RSS</a>
@@ -26,8 +26,7 @@ import { siteConfig } from '../data/site';
     gap: var(--space-2);
     padding-block: var(--space-4);
     color: var(--color-text-muted);
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.82rem;
   }
 
   .site-footer p {

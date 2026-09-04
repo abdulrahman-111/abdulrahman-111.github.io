@@ -1,0 +1,229 @@
+---
+interface Props {
+  total: number;
+}
+
+const { total } = Astro.props;
+---
+
+<blog-discovery data-view="cards">
+  <div class="blog-controls" data-blog-controls hidden>
+    <label>
+      Search articles
+      <input type="search" name="q" autocomplete="off" />
+    </label>
+    <label>
+      Sort articles
+      <select name="sort">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="shortest">Shortest read</option>
+        <option value="longest">Longest read</option>
+      </select>
+    </label>
+    <div role="group" aria-label="Article view">
+      <button type="button" data-view="cards" aria-pressed="true">Cards</button>
+      <button type="button" data-view="list" aria-pressed="false">Compact list</button>
+    </div>
+    <p aria-live="polite" data-result-count>{total} articles</p>
+  </div>
+  <slot />
+  <p data-blog-empty hidden>No articles match this search.</p>
+</blog-discovery>
+
+<script>
+  import {
+    matchesBlogQuery,
+    sortBlogItems,
+    type BlogDiscoveryItem,
+    type BlogSort,
+  } from '../lib/blog-discovery';
+
+  class BlogDiscoveryElement extends HTMLElement {
+    connectedCallback() {
+      const controls = this.querySelector<HTMLElement>('[data-blog-controls]');
+      const results = this.querySelector<HTMLElement>('[data-blog-results]');
+      const count = this.querySelector<HTMLElement>('[data-result-count]');
+      const empty = this.querySelector<HTMLElement>('[data-blog-empty]');
+      const search = this.querySelector<HTMLInputElement>('input[name="q"]');
+      const sortSelect = this.querySelector<HTMLSelectElement>('select[name="sort"]');
+      const viewButtons = [...this.querySelectorAll<HTMLButtonElement>('button[data-view]')];
+
+      if (!controls || !results || !count || !empty || !search || !sortSelect) return;
+
+      type BrowserItem = BlogDiscoveryItem & { element: HTMLElement };
+      const items: BrowserItem[] = [...this.querySelectorAll<HTMLElement>('[data-blog-item]')].map(
+        (element) => ({
+          element,
+          id: element.dataset.id ?? '',
+          title: element.dataset.title ?? '',
+          description: element.dataset.description ?? '',
+          category: element.dataset.category ?? '',
+          tags: JSON.parse(element.dataset.tags ?? '[]') as string[],
+          published: Number(element.dataset.published ?? 0),
+          readingMinutes: Number(element.dataset.readingMinutes ?? 0),
+        }),
+      );
+
+      const parameters = new URLSearchParams(location.search);
+      const allowedSorts: BlogSort[] = ['newest', 'oldest', 'shortest', 'longest'];
+      let query = parameters.get('q') ?? '';
+      let sort: BlogSort = allowedSorts.includes(parameters.get('sort') as BlogSort)
+        ? (parameters.get('sort') as BlogSort)
+        : 'newest';
+      let view = parameters.get('view') === 'list' ? 'list' : 'cards';
+
+      const updateUrl = () => {
+        const next = new URL(location.href);
+        if (query) next.searchParams.set('q', query);
+        else next.searchParams.delete('q');
+        if (sort === 'newest') next.searchParams.delete('sort');
+        else next.searchParams.set('sort', sort);
+        if (view === 'cards') next.searchParams.delete('view');
+        else next.searchParams.set('view', view);
+        history.replaceState({}, '', next);
+      };
+
+      const apply = (updateHistory = true) => {
+        const ordered = sortBlogItems(items, sort);
+        const visible = ordered.filter((item) => matchesBlogQuery(item, query));
+        const visibleIds = new Set(visible.map(({ id }) => id));
+
+        ordered.forEach((item) => {
+          item.element.hidden = !visibleIds.has(item.id);
+          results.append(item.element);
+        });
+
+        count.textContent = `${visible.length} ${visible.length === 1 ? 'article' : 'articles'}`;
+        empty.hidden = visible.length !== 0;
+        this.dataset.view = view;
+        this.dataset.filtering = query ? 'true' : 'false';
+        viewButtons.forEach((button) =>
+          button.setAttribute('aria-pressed', String(button.dataset.view === view)),
+        );
+        if (updateHistory) updateUrl();
+      };
+
+      search.value = query;
+      sortSelect.value = sort;
+      controls.hidden = false;
+      search.addEventListener('input', () => {
+        query = search.value.trim();
+        apply();
+      });
+      sortSelect.addEventListener('change', () => {
+        sort = sortSelect.value as BlogSort;
+        apply();
+      });
+      viewButtons.forEach((button) =>
+        button.addEventListener('click', () => {
+          view = button.dataset.view === 'list' ? 'list' : 'cards';
+          apply();
+        }),
+      );
+      apply(false);
+    }
+  }
+
+  if (!customElements.get('blog-discovery')) {
+    customElements.define('blog-discovery', BlogDiscoveryElement);
+  }
+</script>
+
+<style>
+  blog-discovery {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .blog-controls {
+    display: grid;
+    gap: var(--space-2);
+    align-items: end;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .blog-controls label {
+    display: grid;
+    gap: 0.35rem;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  .blog-controls :is(input, select) {
+    width: 100%;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font: inherit;
+  }
+
+  .blog-controls [role='group'] {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .blog-controls button {
+    min-height: 2.5rem;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+
+  .blog-controls button[aria-pressed='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .blog-controls p,
+  [data-blog-empty] {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  blog-discovery :global([data-blog-results]) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+  }
+
+  blog-discovery :global([data-blog-item]) {
+    min-width: 0;
+    list-style: none;
+  }
+
+  blog-discovery :global([data-blog-item][data-featured='true']) {
+    grid-column: 1 / -1;
+  }
+
+  blog-discovery[data-view='list'] :global([data-blog-results]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  blog-discovery[data-view='list'] :global([data-blog-item][data-featured='true']) {
+    grid-column: auto;
+  }
+
+  @media (min-width: 52rem) {
+    .blog-controls {
+      grid-template-columns: minmax(12rem, 1fr) minmax(10rem, 0.65fr) auto auto;
+    }
+  }
+</style>

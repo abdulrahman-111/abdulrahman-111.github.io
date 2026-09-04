@@ -1,0 +1,110 @@
+---
+import { siteConfig } from '../data/site';
+
+interface Props {
+  side: 'social' | 'email';
+}
+
+const { side } = Astro.props;
+const profiles = [
+  ['GitHub', siteConfig.social.github],
+  ['LinkedIn', siteConfig.social.linkedin],
+  ['Kaggle', siteConfig.social.kaggle],
+  ['Medium', siteConfig.social.medium],
+] as const;
+---
+
+{
+  side === 'social' ? (
+    <nav class="side-rail side-rail--social" aria-label="Desktop social links">
+      <ul>
+        {profiles.map(([label, href]) => (
+          <li>
+            <a href={href} target="_blank" rel="noreferrer">
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  ) : (
+    <aside class="side-rail side-rail--email">
+      <a aria-label="Email Abdulrahman" href={`mailto:${siteConfig.email}`}>
+        {siteConfig.email}
+      </a>
+    </aside>
+  )
+}
+
+<style>
+  .side-rail {
+    display: none;
+  }
+
+  @media (min-width: 75rem) {
+    .side-rail {
+      display: block;
+      position: fixed;
+      z-index: 10;
+      bottom: 0;
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+
+    .side-rail::after {
+      display: block;
+      width: 1px;
+      height: 5.5rem;
+      margin: var(--space-3) auto 0;
+      background: var(--color-text-muted);
+      content: '';
+    }
+
+    .side-rail--social {
+      left: max(1.5rem, calc((100vw - var(--content-width)) / 2 - 5.5rem));
+    }
+
+    .side-rail--email {
+      right: max(1.5rem, calc((100vw - var(--content-width)) / 2 - 5.5rem));
+      writing-mode: vertical-rl;
+    }
+
+    .side-rail ul {
+      display: grid;
+      gap: var(--space-3);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .side-rail a {
+      color: inherit;
+      text-decoration: none;
+      transition:
+        color var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    .side-rail a:hover,
+    .side-rail a:focus-visible {
+      color: var(--color-accent);
+      transform: translateY(-0.2rem);
+    }
+  }
+
+  @media (min-width: 75rem) and (max-width: 87.5rem) {
+    .side-rail--social {
+      left: 0.75rem;
+    }
+
+    .side-rail--social a {
+      writing-mode: vertical-rl;
+    }
+
+    .side-rail--email {
+      right: 0.75rem;
+    }
+  }
+</style>

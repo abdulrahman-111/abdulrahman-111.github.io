@@ -20,7 +20,7 @@ const projects = (await getCollection('projects')).sort(
       title="Systems, evidence, and engineering boundaries."
       description="Case studies are ordered by portfolio rank and distinguish each collaborative system’s capabilities from my verified contribution."
     />
-    <div class="projects__grid">
+    <div class="projects__grid" data-reveal>
       {projects.map((project) => <ProjectCard project={project} />)}
     </div>
     <ContactCta />

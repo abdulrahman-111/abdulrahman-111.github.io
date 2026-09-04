@@ -34,6 +34,11 @@ const validCertification = {
 };
 
 describe('content schemas', () => {
+  it('defaults blog featured state to false and accepts an explicit featured post', () => {
+    expect(blogSchema.parse(validBlog).featured).toBe(false);
+    expect(blogSchema.parse({ ...validBlog, featured: true }).featured).toBe(true);
+  });
+
   it('accepts a valid blog entry and coerces its publication date', () => {
     const result = blogSchema.safeParse(validBlog);
 

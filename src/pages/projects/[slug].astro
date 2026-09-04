@@ -29,7 +29,7 @@ const { Content } = await render(project);
   type="article"
 >
   <article class="project-detail">
-    <header class="project-hero page-shell">
+    <header class="project-hero page-shell" data-reveal>
       <div class="project-hero__meta">
         <span>Rank {String(project.data.rank).padStart(2, '0')}</span>
         <span>{project.data.period}</span>
@@ -50,7 +50,7 @@ const { Content } = await render(project);
       </div>
     </header>
 
-    <section class="project-visual page-shell" aria-label="Project architecture">
+    <section class="project-visual page-shell" aria-label="Project architecture" data-reveal>
       {
         project.data.image ? (
           <img src={project.data.image} alt={`${project.data.title} project view`} />
@@ -60,11 +60,11 @@ const { Content } = await render(project);
       }
     </section>
 
-    <div class="project-prose page-shell">
+    <div class="project-prose page-shell" data-reveal>
       <Content />
     </div>
 
-    <div class="project-contact page-shell">
+    <div class="project-contact page-shell" data-reveal>
       <ContactCta />
     </div>
   </article>
@@ -83,7 +83,7 @@ const { Content } = await render(project);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.76rem;
     text-transform: uppercase;
@@ -92,7 +92,7 @@ const { Content } = await render(project);
   .project-hero__meta span:not(:first-child)::before {
     margin-right: var(--space-2);
     color: var(--color-border-strong);
-    content: '//';
+    content: '·';
   }
 
   .project-hero h1 {
@@ -125,7 +125,9 @@ const { Content } = await render(project);
     display: block;
     width: 100%;
     height: auto;
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
   }
 
   .project-prose {

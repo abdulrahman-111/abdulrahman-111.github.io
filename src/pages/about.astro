@@ -12,12 +12,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
   <section class="about page-shell">
     <SectionHeader
-      eyebrow="Profile // Cairo"
+      eyebrow="Profile · Cairo"
       title="Engineering across model and infrastructure boundaries."
       description="I approach intelligent applications as systems: models, data paths, deployment boundaries, observability, and the low-level behavior underneath them all matter."
     />
 
-    <div class="about__intro panel">
+    <div class="about__intro panel" data-reveal>
       <p>
         I’m a Computer Engineering student at Egypt University of Informatics, preparing for roles
         where machine learning and platform engineering meet. My work ranges from computer vision
@@ -30,7 +30,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </p>
     </div>
 
-    <section aria-labelledby="experience-title">
+    <section aria-labelledby="experience-title" data-reveal>
       <p class="eyebrow">Operating history</p>
       <h2 id="experience-title">Experience</h2>
       <div class="timeline">
@@ -47,7 +47,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section aria-labelledby="education-title">
+    <section aria-labelledby="education-title" data-reveal>
       <p class="eyebrow">Foundation</p>
       <h2 id="education-title">Education</h2>
       <div class="record-grid">
@@ -65,7 +65,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section aria-labelledby="skills-title">
+    <section aria-labelledby="skills-title" data-reveal>
       <p class="eyebrow">Tooling map</p>
       <h2 id="skills-title">Skills</h2>
       <div class="skill-grid">
@@ -82,7 +82,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section class="leadership panel" aria-labelledby="leadership-title">
+    <section class="leadership panel" aria-labelledby="leadership-title" data-reveal>
       <p class="eyebrow">Community layer</p>
       <h2 id="leadership-title">IEEE leadership</h2>
       <p>
@@ -97,7 +97,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </p>
     </section>
 
-    <section class="about__profiles panel" aria-labelledby="profiles-title">
+    <section class="about__profiles panel" aria-labelledby="profiles-title" data-reveal>
       <p class="eyebrow">Public channels</p>
       <h2 id="profiles-title">Profiles and contact</h2>
       <p>Explore my public work and writing, or contact me directly by email.</p>
@@ -121,8 +121,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   .panel {
     padding: var(--space-4);
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
     background: var(--color-surface);
+    box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
   }
   .about__intro {
     display: grid;
@@ -162,7 +164,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .timeline__item > p:first-child {
     grid-row: span 3;
     margin: 0;
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.78rem;
   }

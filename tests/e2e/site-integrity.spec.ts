@@ -13,6 +13,55 @@ const viewports = [
   { width: 1440, height: 900 },
 ] as const;
 
+test('cards use raised navy surfaces and restrained interaction distance', async ({ page }) => {
+  for (const [route, selector] of [
+    ['/projects/', '.project-card'],
+    ['/blog/', '.post-card'],
+    ['/certifications/', '.credential-card:has(a)'],
+  ] as const) {
+    await page.goto(route);
+    const card = page.locator(selector).first();
+    const styles = await card.evaluate((node) => {
+      const style = getComputedStyle(node);
+      return {
+        background: style.backgroundColor,
+        borderColor: style.borderColor,
+        borderRadius: style.borderRadius,
+        boxShadow: style.boxShadow,
+        transitionDuration: style.transitionDuration,
+        transitionProperty: style.transitionProperty,
+      };
+    });
+    expect(styles.background).toBe('rgb(17, 34, 64)');
+    expect(styles.borderColor).toBe('rgba(0, 0, 0, 0)');
+    expect(styles.borderRadius).not.toBe('0px');
+    expect(styles.boxShadow).not.toBe('none');
+    expect(styles.transitionDuration).not.toBe('0s');
+    expect(styles.transitionProperty).toContain('box-shadow');
+
+    await card.hover();
+    await expect
+      .poll(() => card.evaluate((node) => getComputedStyle(node).transform))
+      .toBe('matrix(1, 0, 0, 1, 0, -4)');
+    const interaction = await card.evaluate((node) => {
+      const style = getComputedStyle(node);
+      return { borderColor: style.borderColor, boxShadow: style.boxShadow };
+    });
+    expect(interaction.borderColor).toBe('rgb(100, 255, 218)');
+    expect(interaction.boxShadow).not.toBe(styles.boxShadow);
+    expect(
+      await card
+        .locator('a')
+        .last()
+        .evaluate((node) => getComputedStyle(node).color),
+    ).toBe('rgb(100, 255, 218)');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect.poll(() => card.evaluate((node) => getComputedStyle(node).transform)).toBe('none');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+  }
+});
+
 for (const viewport of viewports) {
   test(`representative pages do not overflow at ${viewport.width}×${viewport.height}`, async ({
     page,
@@ -32,6 +81,7 @@ test('article code and tables remain contained with reduced motion', async ({ pa
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/blog/from-terraform-to-gitops/');
+  await expect(page.locator('html')).toHaveClass(/has-js/);
   await expect(page.locator('pre').first()).toBeVisible();
   await expect(page.locator('table').first()).toBeVisible();
   expect(

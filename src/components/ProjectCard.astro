@@ -36,15 +36,27 @@ const { project } = Astro.props;
     gap: var(--space-3);
     min-height: 100%;
     padding: var(--space-4);
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
     background: var(--color-surface);
+    box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
+    transition:
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .project-card:is(:hover, :focus-within) {
+    transform: translateY(-0.25rem);
+    border-color: var(--color-accent);
+    box-shadow: 0 0.875rem 2.25rem rgb(2 12 27 / 45%);
   }
 
   .project-card__meta {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.74rem;
     text-transform: uppercase;
@@ -53,7 +65,7 @@ const { project } = Astro.props;
   .project-card__meta span:not(:first-child)::before {
     margin-right: var(--space-2);
     color: var(--color-border-strong);
-    content: '//';
+    content: '·';
   }
 
   .project-card h2 {
@@ -73,16 +85,22 @@ const { project } = Astro.props;
 
   .project-card .project-card__contribution {
     padding-left: var(--space-3);
-    border-left: 2px solid var(--color-amber);
+    border-left: 2px solid var(--color-accent);
     color: var(--color-text);
     font-size: 0.9rem;
   }
 
   .project-card__link {
     align-self: end;
-    color: var(--color-cyan-strong);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.82rem;
     font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card:is(:hover, :focus-within) {
+      transform: none;
+    }
   }
 </style>

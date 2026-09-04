@@ -1,6 +1,7 @@
 ---
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import SocialRail from '../components/SocialRail.astro';
 import { siteConfig } from '../data/site';
 import '../styles/global.css';
 
@@ -43,6 +44,9 @@ const jsonLd = structuredData
 <!doctype html>
 <html lang="en">
   <head>
+    <script is:inline>
+      document.documentElement.classList.add('has-js');
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
@@ -69,9 +73,14 @@ const jsonLd = structuredData
   <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
     <SiteHeader />
+    <SocialRail side="social" />
+    <SocialRail side="email" />
     <main id="main-content" tabindex="-1">
       <slot />
     </main>
     <SiteFooter />
+    <script>
+      import '../scripts/reveal';
+    </script>
   </body>
 </html>
