@@ -1,18 +1,17 @@
 :root {
   color-scheme: dark;
 
-  --color-canvas: #07131f;
-  --color-surface: #0c1d2d;
-  --color-surface-raised: #10283d;
-  --color-border: #27445a;
-  --color-border-strong: #3b6680;
-  --color-text: #f1f7fb;
-  --color-text-muted: #aac0d0;
-  --color-cyan: #3dd9e8;
-  --color-cyan-strong: #8bf4ff;
-  --color-amber: #f4b942;
-  --color-focus: #ffd166;
-  --color-grid: rgb(61 217 232 / 7%);
+  --color-canvas: #0a192f;
+  --color-surface: #112240;
+  --color-surface-raised: #172a45;
+  --color-border: #233554;
+  --color-border-strong: #3b5278;
+  --color-text: #ccd6f6;
+  --color-text-strong: #e6f1ff;
+  --color-text-muted: #8892b0;
+  --color-accent: #64ffda;
+  --color-accent-soft: rgb(100 255 218 / 10%);
+  --color-focus: #64ffda;
 
   --font-sans:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -26,7 +25,11 @@
   --space-6: 3rem;
   --space-7: 4.5rem;
 
-  --content-width: 72rem;
-  --radius: 0.25rem;
-  --transition-fast: 160ms ease;
+  --content-width: 70rem;
+  --reading-width: 46rem;
+  --site-header-height: 4.5rem;
+  --radius: 0.35rem;
+  --radius-pill: 999px;
+  --transition-fast: 180ms ease;
+  --transition-medium: 320ms ease;
 }

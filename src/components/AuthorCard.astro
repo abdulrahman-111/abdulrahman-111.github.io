@@ -1,0 +1,36 @@
+---
+import { siteConfig } from '../data/site';
+---
+
+<aside class="author-card" aria-labelledby="article-author-title">
+  <p class="eyebrow">Author</p>
+  <h2 id="article-author-title">Written by {siteConfig.name}</h2>
+  <p>
+    Computer Engineering student building ML systems, cloud delivery infrastructure, and Linux
+    software.
+  </p>
+  <a href="/about/">More about Abdulrahman</a>
+</aside>
+
+<style>
+  .author-card {
+    margin-top: var(--space-6);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .author-card h2 {
+    margin: var(--space-1) 0 var(--space-2);
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+  }
+
+  .author-card p:not(.eyebrow) {
+    color: var(--color-text-muted);
+  }
+
+  .author-card a {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+  }
+</style>

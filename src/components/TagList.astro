@@ -29,17 +29,23 @@ const { tags, linked = false } = Astro.props;
 
   .tag-list :is(a, span) {
     display: inline-flex;
-    padding: 0.22rem 0.5rem;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-muted);
+    align-items: center;
+    min-height: 2rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-pill);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.72rem;
     line-height: 1.35;
     text-decoration: none;
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast);
   }
 
-  .tag-list a:hover {
-    border-color: var(--color-cyan);
-    color: var(--color-cyan-strong);
+  .tag-list a:is(:hover, :focus-visible) {
+    background: var(--color-accent-soft);
+    color: var(--color-text-strong);
   }
 </style>

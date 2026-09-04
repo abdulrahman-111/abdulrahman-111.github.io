@@ -24,6 +24,26 @@ for (const [path, heading] of pages) {
   });
 }
 
+test('homepage uses simple narrative sections and preserves primary message', async ({ page }) => {
+  await page.goto('/');
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'I build intelligent systems—and the infrastructure behind them.',
+    }),
+  ).toBeVisible();
+  await expect(page.getByText('01. About')).toBeVisible();
+  await expect(page.getByText('02. Selected Work')).toBeVisible();
+  await expect(page.getByText('03. Writing')).toBeVisible();
+  await expect(page.getByText('04. Contact')).toBeVisible();
+  await expect(page.locator('.hero__console')).toHaveCount(0);
+  await expect(page.locator('.status-strip')).toHaveCount(0);
+  await expect(
+    page.getByRole('heading', { name: 'Let’s build something reliable.' }),
+  ).toBeVisible();
+  await expect(page.locator('[data-reveal]').first()).toHaveClass(/is-revealed/);
+});
+
 test('certification page exposes all redacted previews and domain groups', async ({ page }) => {
   await page.goto('/certifications/');
   await expect(page.locator('body')).not.toContainText('Invalid Date');
@@ -62,5 +82,5 @@ test('RSS, robots, and 404 assets are available', async ({ request }) => {
   );
   const missing = await request.get('/definitely-missing/');
   expect(missing.status()).toBe(404);
-  expect(await missing.text()).toContain('Signal lost. Route not found.');
+  expect(await missing.text()).toContain('Page not found.');
 });

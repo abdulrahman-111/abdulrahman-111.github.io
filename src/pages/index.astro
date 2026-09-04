@@ -14,10 +14,9 @@ const featuredProjects = (await getCollection('projects'))
   .filter((project) => project.data.featured)
   .sort((a, b) => a.data.rank - b.data.rank)
   .slice(0, 3);
-const latestPosts = getPublishedEntries(await getCollection('blog'), import.meta.env.PROD).slice(
-  0,
-  3,
-);
+const posts = getPublishedEntries(await getCollection('blog'), import.meta.env.PROD);
+const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];
+const supportingPosts = posts.filter((post) => post.id !== featuredPost?.id).slice(0, 2);
 const featuredCredentials = certificationSchema
   .array()
   .parse(certificationsData)
@@ -26,122 +25,57 @@ const featuredCredentials = certificationSchema
 ---
 
 <BaseLayout title={`${siteConfig.name} — ${siteConfig.role}`} description={siteConfig.description}>
-  <section class="hero">
-    <div class="page-shell hero__inner">
-      <div>
-        <p class="eyebrow">ML systems // infrastructure</p>
-        <h1>{siteConfig.tagline}</h1>
-        <p class="hero__summary">
-          Computer Engineering student in Cairo working across model pipelines, cloud automation,
-          Kubernetes delivery, and Linux systems programming.
-        </p>
-        <div class="hero__actions">
-          <a class="button-link" href="/projects/">View projects</a><a
-            class="button-link button-link--secondary"
-            href="/resume/">Choose a résumé</a
-          >
-        </div>
-      </div>
-      <aside class="hero__console" aria-label="Current engineering profile">
-        <p><span>profile</span> {siteConfig.role}</p>
-        <p><span>location</span> {siteConfig.location}</p>
-        <p><span>education</span> Computer Engineering</p>
-        <p><span>signal</span> models + platforms + systems</p>
-        <p class="hero__ready">
-          <span aria-hidden="true"></span> available for engineering conversations
-        </p>
-      </aside>
-    </div>
-  </section>
-
-  <section class="status-strip" aria-label="Credibility summary">
-    <div class="page-shell status-strip__inner">
-      <div><p class="status-label">Education</p><p>CGPA 3.98 / 4.00</p></div>
-      <div><p class="status-label">Cloud</p><p>AWS Certified</p></div>
-      <div><p class="status-label">Focus</p><p>ML systems + DevOps</p></div>
-      <div><p class="status-label">Evidence</p><p>5 case studies</p></div>
+  <section class="hero page-shell" aria-labelledby="hero-title">
+    <p class="hero__intro" data-reveal style="--reveal-delay: 80ms">Hi, my name is Abdulrahman.</p>
+    <h1 id="hero-title" data-reveal style="--reveal-delay: 160ms">{siteConfig.tagline}</h1>
+    <p class="hero__summary" data-reveal style="--reveal-delay: 240ms">
+      Computer Engineering student building dependable ML pipelines, cloud delivery systems, and
+      Linux software.
+    </p>
+    <div class="hero__actions" data-reveal style="--reveal-delay: 320ms">
+      <a class="button-link" href="/projects/">View projects</a>
+      <a class="button-link button-link--secondary" href="/resume/">Choose a résumé</a>
     </div>
   </section>
 
   <div class="home page-shell">
-    <section class="home-section" aria-labelledby="featured-projects-title">
-      <div class="home-section__heading">
-        <div>
-          <p class="eyebrow">Selected systems</p><h2 id="featured-projects-title">
-            Featured projects
-          </h2>
-        </div><a href="/projects/">All case studies →</a>
-      </div>
+    <section class="home-section" data-reveal aria-labelledby="about-focus-title">
+      <p class="eyebrow">01. About</p>
+      <h2 id="about-focus-title">
+        Engineering across model, delivery, and operating-system boundaries.
+      </h2>
+      <p class="about-copy">
+        I work at the seams: where a trained model becomes an application, where an artifact becomes
+        a release, and where operating-system behavior becomes user-visible reliability.
+      </p>
+    </section>
+
+    <section class="home-section" data-reveal aria-labelledby="featured-projects-title">
+      <p class="eyebrow">02. Selected Work</p>
+      <h2 id="featured-projects-title">Systems backed by evidence.</h2>
       <div class="project-grid">
         {featuredProjects.map((project) => <ProjectCard project={project} />)}
       </div>
     </section>
 
-    <section class="home-section" aria-labelledby="areas-title">
-      <div class="home-section__heading">
-        <div>
-          <p class="eyebrow">Technical surface</p><h2 id="areas-title">Engineering areas</h2>
-        </div>
-      </div>
-      <div class="area-grid">
-        <article>
-          <span>01</span><h3>Intelligent systems</h3><p>
-            Computer vision, predictive modeling, feature pipelines, and decision-support
-            interfaces.
-          </p>
-        </article>
-        <article>
-          <span>02</span><h3>Delivery infrastructure</h3><p>
-            Terraform, Ansible, CI/CD, Kubernetes, Helm, GitOps, secret management, and runtime
-            observability.
-          </p>
-        </article>
-        <article>
-          <span>03</span><h3>Systems foundations</h3><p>
-            Linux processes, file descriptors, command execution, networking, C, and shell behavior.
-          </p>
-        </article>
-      </div>
-    </section>
-
-    <section class="home-section" aria-labelledby="writing-title">
-      <div class="home-section__heading">
-        <div>
-          <p class="eyebrow">Published analysis</p><h2 id="writing-title">Latest writing</h2>
-        </div><a href="/blog/">Writing index →</a>
-      </div>
+    <section class="home-section" data-reveal aria-labelledby="writing-title">
+      <p class="eyebrow">03. Writing</p>
+      <h2 id="writing-title">Notes from building the systems.</h2>
+      {featuredPost && <PostCard post={featuredPost} featured />}
       <div class="post-grid">
-        {latestPosts.map((post) => <PostCard post={post} headingLevel="h3" />)}
+        {supportingPosts.map((post) => <PostCard post={post} headingLevel="h3" />)}
       </div>
     </section>
 
-    <section class="home-section" aria-labelledby="credentials-title">
-      <div class="home-section__heading">
-        <div>
-          <p class="eyebrow">Verified learning</p><h2 id="credentials-title">Credential preview</h2>
-        </div><a href="/certifications/">All credentials →</a>
-      </div>
+    <section class="home-section" data-reveal aria-labelledby="credentials-title">
+      <p class="eyebrow">Credentials</p>
+      <h2 id="credentials-title">Verified learning.</h2>
       <div class="credential-grid">
         {
           featuredCredentials.map((certification) => (
             <CertificationCard certification={certification} />
           ))
         }
-      </div>
-    </section>
-
-    <section class="about-preview" aria-labelledby="about-preview-title">
-      <div>
-        <p class="eyebrow">About the engineer</p><h2 id="about-preview-title">
-          One system, all the boundaries.
-        </h2>
-      </div>
-      <div>
-        <p>
-          I’m interested in the seams: where a trained model becomes an application, where an
-          artifact becomes a release, and where operating-system behavior becomes user-visible
-          reliability.
-        </p><a class="button-link button-link--secondary" href="/about/">Read the profile</a>
       </div>
     </section>
 
@@ -153,12 +87,14 @@ const featuredCredentials = certificationSchema
   .hero {
     padding-block: clamp(var(--space-6), 10vw, 8rem);
   }
-  .hero__inner {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(18rem, 0.6fr);
-    align-items: end;
-    gap: var(--space-6);
+
+  .hero__intro {
+    margin: 0;
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
   }
+
   h1 {
     max-width: 15ch;
     margin: var(--space-3) 0 var(--space-4);
@@ -166,167 +102,61 @@ const featuredCredentials = certificationSchema
     letter-spacing: -0.055em;
     line-height: 0.98;
   }
-  .hero__summary {
+
+  .hero__summary,
+  .about-copy {
     max-width: 43rem;
     margin: 0;
     color: var(--color-text-muted);
     font-size: clamp(1.05rem, 2vw, 1.25rem);
   }
+
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
     margin-top: var(--space-5);
   }
-  .hero__console {
-    padding: var(--space-4);
-    border: 1px solid var(--color-border-strong);
-    background: rgb(12 29 45 / 86%);
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-  }
-  .hero__console p {
-    margin: 0;
-    padding: 0.65rem 0;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text-muted);
-  }
-  .hero__console p > span:first-child {
-    display: inline-block;
-    width: 7rem;
-    color: var(--color-cyan);
-  }
-  .hero__console .hero__ready {
-    padding-bottom: 0;
-    border: 0;
-    color: var(--color-text);
-  }
-  .hero__ready > span:first-child {
-    width: 0.55rem;
-    height: 0.55rem;
-    margin-right: 0.55rem;
-    border-radius: 50%;
-    background: var(--color-amber);
-    box-shadow: 0 0 1rem rgb(244 185 66 / 60%);
-  }
-  .status-strip {
-    border-block: 1px solid var(--color-border);
-    background: var(--color-surface);
-  }
-  .status-strip__inner {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-  .status-strip__inner > div {
-    padding: var(--space-3);
-    border-right: 1px solid var(--color-border);
-  }
-  .status-strip p:not(.status-label) {
-    margin: 0.2rem 0 0;
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-  }
+
   .home {
     display: grid;
     gap: var(--space-7);
-    padding-block: var(--space-7);
+    padding-bottom: var(--space-7);
   }
+
   .home-section {
     display: grid;
-    gap: var(--space-4);
-  }
-  .home-section__heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
     gap: var(--space-3);
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--color-border);
   }
-  .home-section__heading h2,
-  .about-preview h2 {
-    margin: var(--space-1) 0 0;
+
+  .home-section h2 {
+    max-width: 22ch;
+    margin: 0;
     font-size: clamp(1.9rem, 5vw, 3.2rem);
     line-height: 1.05;
   }
-  .home-section__heading > a {
-    color: var(--color-cyan-strong);
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-  }
+
   .project-grid,
   .post-grid,
-  .credential-grid,
-  .area-grid {
+  .credential-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-3);
   }
-  .area-grid article {
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-  }
-  .area-grid span {
-    color: var(--color-amber);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-  }
-  .area-grid h3 {
-    margin: var(--space-3) 0 var(--space-2);
-    font-size: 1.4rem;
-  }
-  .area-grid p {
-    margin: 0;
-    color: var(--color-text-muted);
-  }
-  .about-preview {
-    display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    gap: var(--space-6);
-    padding: var(--space-5);
-    border: 1px solid var(--color-border-strong);
-    background: var(--color-surface);
-  }
-  .about-preview > div:last-child {
-    display: grid;
-    align-content: start;
-    justify-items: start;
-    gap: var(--space-3);
-  }
-  .about-preview p {
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: 1.08rem;
-  }
+
   @media (max-width: 60rem) {
-    .hero__inner {
-      grid-template-columns: 1fr;
-      align-items: start;
-    }
     .project-grid,
     .post-grid,
     .credential-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+
   @media (max-width: 44rem) {
-    .status-strip__inner,
     .project-grid,
     .post-grid,
-    .credential-grid,
-    .area-grid,
-    .about-preview {
+    .credential-grid {
       grid-template-columns: 1fr;
-    }
-    .status-strip__inner > div {
-      border-right: 0;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .home-section__heading {
-      align-items: start;
-      flex-direction: column;
     }
   }
 </style>

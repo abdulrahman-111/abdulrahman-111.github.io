@@ -1,7 +1,9 @@
 ---
 import type { MarkdownHeading } from 'astro';
 import type { CollectionEntry } from 'astro:content';
+import AuthorCard from '../components/AuthorCard.astro';
 import ContactCta from '../components/ContactCta.astro';
+import CopyLinkButton from '../components/CopyLinkButton.astro';
 import PostCard from '../components/PostCard.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 import TagList from '../components/TagList.astro';
@@ -31,6 +33,13 @@ const published = post.data.published.toLocaleDateString('en-US', {
   day: 'numeric',
   timeZone: 'UTC',
 });
+const updated = post.data.updated?.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+const articleUrl = `${siteConfig.url}/blog/${post.id}/`;
 const articleData = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -52,9 +61,11 @@ const articleData = {
 >
   <article class="article-shell">
     <header class="article-hero page-shell">
+      <a class="article-back" href="/blog/">← Back to all articles</a>
       <div class="article-hero__meta">
         <a href={`/blog/category/${slugify(post.data.category)}/`}>{categoryLabel}</a>
         <time datetime={post.data.published.toISOString()}>{published}</time>
+        {updated && <time datetime={post.data.updated?.toISOString()}>Updated {updated}</time>}
         <span>{readingTime} min read</span>
         {
           post.data.sourceUrl && (
@@ -63,6 +74,7 @@ const articleData = {
             </a>
           )
         }
+        <CopyLinkButton value={articleUrl} label="Copy article link" />
       </div>
       <h1>{post.data.title}</h1>
       <p>{post.data.description}</p>
@@ -75,6 +87,15 @@ const articleData = {
       </aside>
       <div class="article-prose">
         <slot />
+        <AuthorCard />
+        <a
+          class="article-edit"
+          href={`https://github.com/abdulrahman-111/abdulrahman-111.github.io/edit/main/src/content/blog/${post.id}.mdx`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Edit this article on GitHub
+        </a>
       </div>
     </div>
 
@@ -140,10 +161,19 @@ const articleData = {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.76rem;
     text-transform: uppercase;
+  }
+
+  .article-back {
+    display: inline-block;
+    margin-bottom: var(--space-3);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    text-decoration: none;
   }
 
   .article-hero__meta > :not(:first-child)::before {
@@ -157,7 +187,7 @@ const articleData = {
   }
 
   .article-source {
-    color: var(--color-amber);
+    color: var(--color-accent);
   }
 
   .article-hero h1 {
@@ -188,12 +218,12 @@ const articleData = {
 
   .article-prose {
     min-width: 0;
-    max-width: 48rem;
+    max-width: var(--reading-width);
   }
 
   .article-prose :global(h2),
   .article-prose :global(h3) {
-    scroll-margin-top: var(--space-5);
+    scroll-margin-top: calc(var(--site-header-height) + var(--space-3));
     line-height: 1.2;
   }
 
@@ -225,7 +255,7 @@ const articleData = {
 
   .article-prose :global(blockquote) {
     padding-left: var(--space-3);
-    border-left: 0.2rem solid var(--color-cyan);
+    border-left: 0.2rem solid var(--color-accent);
   }
 
   .article-prose :global(blockquote > :last-child) {
@@ -271,7 +301,7 @@ const articleData = {
   }
 
   .article-prose :global(code) {
-    color: var(--color-cyan-strong);
+    color: var(--color-accent);
     font-family: var(--font-mono);
   }
 
@@ -295,8 +325,16 @@ const articleData = {
   }
 
   .article-prose :global(th) {
-    color: var(--color-cyan-strong);
+    color: var(--color-accent);
     font-family: var(--font-mono);
+  }
+
+  .article-edit {
+    display: inline-block;
+    margin-top: var(--space-3);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
   }
 
   .article-neighbors {
@@ -317,7 +355,7 @@ const articleData = {
   }
 
   .article-neighbors > :is(a, span) > span {
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.74rem;
     text-transform: uppercase;
@@ -343,20 +381,20 @@ const articleData = {
     gap: var(--space-3);
   }
 
-  @media (min-width: 62rem) {
+  @media (min-width: 64rem) {
     .article-grid {
-      grid-template-columns: minmax(14rem, 18rem) minmax(0, 48rem);
+      grid-template-columns: minmax(14rem, 18rem) minmax(0, var(--reading-width));
       align-items: start;
       justify-content: center;
     }
 
     .article-grid__toc {
       position: sticky;
-      top: var(--space-3);
+      top: calc(var(--site-header-height) + var(--space-3));
     }
   }
 
-  @media (max-width: 40rem) {
+  @media (max-width: 44rem) {
     .article-neighbors {
       grid-template-columns: 1fr;
     }

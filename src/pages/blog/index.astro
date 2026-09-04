@@ -1,11 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
+import BlogControls from '../../components/BlogControls.astro';
 import ContactCta from '../../components/ContactCta.astro';
 import PostCard from '../../components/PostCard.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
 import TagList from '../../components/TagList.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getPublishedEntries, slugify } from '../../lib/content';
+import { getReadingTime } from '../../lib/reading-time';
 
 const posts = getPublishedEntries(await getCollection('blog'), import.meta.env.PROD);
 const categories = [...new Set(posts.map((post) => post.data.category))];
@@ -52,9 +54,27 @@ const categoryLabels: Record<string, string> = {
       </div>
     </nav>
 
-    <div class="blog__grid">
-      {posts.map((post) => <PostCard post={post} />)}
-    </div>
+    <BlogControls total={posts.length}>
+      <ol class="blog__grid" data-blog-results>
+        {
+          posts.map((post) => (
+            <li
+              data-blog-item
+              data-id={post.id}
+              data-title={post.data.title}
+              data-description={post.data.description}
+              data-category={post.data.category}
+              data-tags={JSON.stringify(post.data.tags)}
+              data-published={post.data.published.getTime()}
+              data-reading-minutes={getReadingTime(post.body ?? '')}
+              data-featured={post.data.featured ? 'true' : 'false'}
+            >
+              <PostCard post={post} featured={post.data.featured} showCopy />
+            </li>
+          ))
+        }
+      </ol>
+    </BlogControls>
 
     <ContactCta />
   </section>
@@ -77,7 +97,7 @@ const categoryLabels: Record<string, string> = {
 
   .blog-filters p {
     margin: 0 0 var(--space-2);
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.74rem;
     font-weight: 700;
@@ -107,14 +127,8 @@ const categoryLabels: Record<string, string> = {
 
   .blog-filters a:hover,
   .blog-filters a[aria-current='page'] {
-    border-color: var(--color-cyan);
-    color: var(--color-cyan-strong);
-  }
-
-  .blog__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr));
-    gap: var(--space-3);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
   }
 
   @media (min-width: 50rem) {

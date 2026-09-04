@@ -18,7 +18,9 @@ test('Medium imports show their original source and the blog lists seven posts n
   );
 
   await page.goto('/blog/');
-  const titles = await page.locator('.post-card h2').allTextContents();
+  const articleHeadings = page.locator('[data-blog-item] .post-card h2');
+  await expect(articleHeadings).toHaveCount(7);
+  const titles = await articleHeadings.allTextContents();
   expect(titles).toEqual([
     'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline',
     'Designing a Real-Time Multi-Model Smart Attendance Pipeline',

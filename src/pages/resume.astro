@@ -15,7 +15,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       title="Choose the résumé aligned with the role."
       description="Both documents are compiled from the source LaTeX résumés and kept separate so the most relevant engineering signal is easy to review."
     />
-    <div class="resume__grid">
+    <div class="resume__grid" data-reveal>
       {
         siteConfig.resumes.map((resume, index) => (
           <article>
@@ -53,8 +53,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     gap: var(--space-3);
     min-height: 20rem;
     padding: var(--space-5);
-    border: 1px solid var(--color-border-strong);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
     background: var(--color-surface);
+    box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
+    transition:
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+  .resume__grid article:is(:hover, :focus-within) {
+    transform: translateY(-0.25rem);
+    border-color: var(--color-accent);
+    box-shadow: 0 0.875rem 2.25rem rgb(2 12 27 / 45%);
   }
   .resume__grid h2,
   .resume__grid p {
@@ -75,5 +86,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   .resume__note {
     margin: calc(var(--space-4) * -1) 0 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .resume__grid article:is(:hover, :focus-within) {
+      transform: none;
+    }
   }
 </style>

@@ -1,16 +1,21 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { siteConfig } from '../data/site';
 import { getReadingTime } from '../lib/reading-time';
+import CopyLinkButton from './CopyLinkButton.astro';
 import TagList from './TagList.astro';
 
 interface Props {
   post: CollectionEntry<'blog'>;
   headingLevel?: 'h2' | 'h3';
+  featured?: boolean;
+  showCopy?: boolean;
 }
 
-const { post, headingLevel = 'h2' } = Astro.props;
+const { post, headingLevel = 'h2', featured = false, showCopy = false } = Astro.props;
 const Heading = headingLevel;
 const readingTime = getReadingTime(post.body ?? '');
+const articleUrl = new URL(`/blog/${post.id}/`, siteConfig.url).toString();
 const published = post.data.published.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'short',
@@ -19,7 +24,7 @@ const published = post.data.published.toLocaleDateString('en-US', {
 });
 ---
 
-<article class="post-card">
+<article class:list={['post-card', { 'post-card--featured': featured }]}>
   <div class="post-card__meta">
     <time datetime={post.data.published.toISOString()}>{published}</time>
     <span>{readingTime} min read</span>
@@ -27,9 +32,12 @@ const published = post.data.published.toLocaleDateString('en-US', {
   <Heading><a href={`/blog/${post.id}/`}>{post.data.title}</a></Heading>
   <p>{post.data.description}</p>
   <TagList tags={post.data.tags} linked />
-  <a class="post-card__link" href={`/blog/${post.id}/`}>
-    Read article <span aria-hidden="true">→</span>
-  </a>
+  <div class="post-card__actions">
+    <a class="post-card__link" href={`/blog/${post.id}/`}>
+      Read article <span aria-hidden="true">→</span>
+    </a>
+    {showCopy && <CopyLinkButton value={articleUrl} label="Copy article link" />}
+  </div>
 </article>
 
 <style>
@@ -38,7 +46,23 @@ const published = post.data.published.toLocaleDateString('en-US', {
     gap: var(--space-2);
     min-height: 100%;
     padding: var(--space-4);
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
+    transition:
+      transform var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .post-card:is(:hover, :focus-within) {
+    transform: translateY(-0.25rem);
+    border-color: var(--color-accent);
+    box-shadow: 0 0.875rem 2.25rem rgb(2 12 27 / 45%);
+  }
+
+  .post-card--featured {
     background: var(--color-surface);
   }
 
@@ -46,7 +70,7 @@ const published = post.data.published.toLocaleDateString('en-US', {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    color: var(--color-cyan);
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.74rem;
     text-transform: uppercase;
@@ -73,12 +97,34 @@ const published = post.data.published.toLocaleDateString('en-US', {
     color: var(--color-text-muted);
   }
 
-  .post-card__link {
-    align-self: end;
+  .post-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
     margin-top: var(--space-1);
-    color: var(--color-cyan-strong);
+  }
+
+  .post-card__link {
+    color: var(--color-accent);
     font-family: var(--font-mono);
     font-size: 0.82rem;
     font-weight: 700;
+  }
+
+  :global(blog-discovery[data-view='list']) .post-card {
+    min-height: 0;
+    gap: var(--space-1);
+  }
+
+  :global(blog-discovery[data-view='list']) .post-card > p {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-card:is(:hover, :focus-within) {
+      transform: none;
+    }
   }
 </style>
