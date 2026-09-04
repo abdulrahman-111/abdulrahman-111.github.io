@@ -47,6 +47,7 @@ describe('code-native brand assets', () => {
     expect(colors.every((color) => approvedPalette.includes(color))).toBe(true);
     expect(new Set(colors)).toEqual(new Set(approvedPalette));
     expect(socialCard).not.toMatch(/grid|pattern/iu);
+    expect(socialCard).not.toMatch(/<text\b/iu);
   });
 
   it('keeps the WebP social card pixel-identical to the SVG source', async () => {
