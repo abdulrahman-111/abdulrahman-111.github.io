@@ -20,9 +20,21 @@ const approvedProjects = [
   },
   { id: 'warsha-hub', title: 'Warsha Hub', rank: 4 },
   { id: 'road-to-my-own-shell', title: 'Road to My Own Shell', rank: 5 },
+  { id: 'darsak', title: 'DarSak', rank: 6 },
+  { id: 'cityfix', title: 'CityFix / CityCycle', rank: 7 },
+  { id: 'customer-complaint-analyzer', title: 'AI-Powered Customer Complaint Analyzer', rank: 8 },
+  { id: 'taxiflow', title: 'TaxiFlow', rank: 9 },
+  { id: 'rv32i-minios', title: 'RV32I CPU and miniOS', rank: 10 },
+  { id: 'virtual-meetings-system', title: 'Virtual Meetings System', rank: 11 },
 ] as const;
 
 const approvedArticles = [
+  {
+    id: 'cityfix-solvethe17-hackathon-journey',
+    title: 'From CityFix to First Place: Our SolveThe17 2.0 Journey',
+    published: '2026-11-24',
+    sourceUrl: undefined,
+  },
   {
     id: 'from-terraform-to-gitops',
     title: 'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline',
@@ -187,7 +199,7 @@ draft: false
     expect(articles.map(({ sourceUrl }) => sourceUrl)).toEqual(
       approvedArticles.map(({ sourceUrl }) => sourceUrl),
     );
-    expect(articles.map(({ draft }) => draft)).toEqual(Array(7).fill(false));
+    expect(articles.map(({ draft }) => draft)).toEqual(Array(approvedArticles.length).fill(false));
   });
 
   it('preserves the original code in imported Medium articles', async () => {

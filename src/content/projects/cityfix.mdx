@@ -1,0 +1,45 @@
+---
+title: CityFix / CityCycle
+summary: A smart-city team project connecting recycling pickups, collector workflows, recorded weights and payments, and simulated smart-bin telemetry.
+rank: 7
+featured: true
+period: '2026'
+domain: Web applications
+tags:
+  - React Native
+  - Expo
+  - TypeScript
+  - FastAPI
+  - IoT simulation
+repoUrl: https://github.com/abdulrahman-111/cityFix
+collaborative: true
+contribution:
+  - Developed citizen and collector interfaces with React Native, Expo, and TypeScript.
+  - Contributed to ideation, frontend development, smart-bin prototyping, and integration.
+---
+
+## The problem
+
+CityFix connects citizens, service teams, and a municipal Command Center. Its CityCycle waste-and-recycling component links household pickup requests with collectors, material weights, recorded payments, and smart-bin readings.
+
+The project won first place at the SolveThe17 2.0 Hackathon hosted by the IEEE EUI Student Branch.
+
+## My contribution
+
+I contributed to ideation, the mobile application, frontend development, smart-bin prototyping, and integration across the team platform. I developed citizen and collector interfaces with React Native, Expo, and TypeScript and connected those workflows with the wider system.
+
+## Workflow and architecture
+
+A household requests a recycling pickup. A collector accepts the job, records material weights and the amount paid, and the household confirms the weight. Mobile, citizen-web, and Command Center clients share a FastAPI backend. Smart-bin simulators submit fill readings for monitoring and route planning.
+
+The payment records track amounts; the platform does not move money or integrate a payment provider.
+
+## Prototype status
+
+The repository includes backend tests for pickups, bins, route optimization, and fill forecasting. Citizen-web and mobile interfaces use mock mode by default. Hardware consists of browser and PC simulators, ESP32 Wokwi prototypes, and design documents; it has not been validated as a physical build.
+
+Team-provided hosted URLs are documented in the repository. Live end-to-end operation and production OR-Tools behavior remain unverified.
+
+[Read the project evidence](https://github.com/abdulrahman-111/cityFix/blob/main/docs/evidence.md).
+
+[Read the hackathon journey](/blog/cityfix-solvethe17-hackathon-journey/) for the story behind our SolveThe17 2.0 first-place result.

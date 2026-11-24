@@ -10,7 +10,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getPublishedEntries } from '../lib/content';
 import { certificationSchema } from '../lib/content-schemas';
 
-const featuredProjects = (await getCollection('projects'))
+const allProjects = await getCollection('projects');
+const featuredProjects = allProjects
   .filter((project) => project.data.featured)
   .sort((a, b) => a.data.rank - b.data.rank)
   .slice(0, 3);
@@ -26,41 +27,111 @@ const featuredCredentials = certificationSchema
 
 <BaseLayout title={`${siteConfig.name} — ${siteConfig.role}`} description={siteConfig.description}>
   <section class="hero page-shell" aria-labelledby="hero-title">
-    <p class="hero__intro" data-reveal style="--reveal-delay: 80ms">Hi, my name is Abdulrahman.</p>
-    <h1 id="hero-title" data-reveal style="--reveal-delay: 160ms">{siteConfig.tagline}</h1>
-    <p class="hero__summary" data-reveal style="--reveal-delay: 240ms">
-      Computer Engineering student building dependable ML pipelines, cloud delivery systems, and
-      Linux software.
-    </p>
-    <div class="hero__actions" data-reveal style="--reveal-delay: 320ms">
-      <a class="button-link" href="/projects/">View projects</a>
-      <a class="button-link button-link--secondary" href="/resume/">Choose a résumé</a>
+    <div class="hero__copy">
+      <p class="hero__intro" data-reveal>Abdulrahman Gomaa Hassan · Cairo, Egypt</p>
+      <h1 id="hero-title">{siteConfig.tagline}</h1>
+      <p class="hero__summary">
+        DevOps Engineer and Computer Engineering undergraduate working on cloud infrastructure,
+        CI/CD, and applied AI research. My projects span Kubernetes delivery, NLP applications,
+        computer vision, and Linux systems programming.
+      </p>
+      <div class="hero__actions">
+        <a class="button-link button-link--primary" href="/projects/">View projects</a>
+        <a class="button-link button-link--secondary" href="/resume/">Choose a résumé</a>
+        <a class="hero__contact" href="#contact">Get in touch</a>
+      </div>
     </div>
+    <aside class="hero__current" aria-labelledby="current-work-title">
+      <p class="eyebrow" id="current-work-title">Current work</p>
+      <div>
+        <h2>DevOps Engineer</h2>
+        <p>Azouz Tech Group</p>
+        <p>Infrastructure, CI/CD, and containerized delivery.</p>
+      </div>
+      <div>
+        <h2>Research Assistant</h2>
+        <p>Nile University · CIS</p>
+        <p>Chest X-ray analysis and model visual attention.</p>
+      </div>
+      <a href="/about/#experience">Experience and background</a>
+    </aside>
   </section>
 
   <div class="home page-shell">
-    <section class="home-section" data-reveal aria-labelledby="about-focus-title">
-      <p class="eyebrow">01. About</p>
-      <h2 id="about-focus-title">
-        Engineering across model, delivery, and operating-system boundaries.
-      </h2>
-      <p class="about-copy">
-        I work at the seams: where a trained model becomes an application, where an artifact becomes
-        a release, and where operating-system behavior becomes user-visible reliability.
-      </p>
-    </section>
-
+    <nav class="audience-paths" aria-label="Explore by interest">
+      <a href="/projects/"
+        ><span class="audience-paths__count">{allProjects.length} projects</span><strong
+          >Explore the engineering</strong
+        ><span>Cloud delivery, web applications, ML, and systems.</span></a
+      >
+      <a href="/research/"
+        ><span class="audience-paths__count"
+          >{siteConfig.research.length} submitted manuscripts</span
+        ><strong>Explore the research</strong><span
+          >Medical imaging, model attention, and circular statistics.</span
+        ></a
+      >
+      <a href="/about/#experience"
+        ><span class="audience-paths__count">Experience & internships</span><strong
+          >Get to know my background</strong
+        ><span>Current roles, teaching, training, and community leadership.</span></a
+      >
+    </nav>
     <section class="home-section" data-reveal aria-labelledby="featured-projects-title">
-      <p class="eyebrow">02. Selected Work</p>
-      <h2 id="featured-projects-title">Systems backed by evidence.</h2>
+      <p class="eyebrow">Selected work</p>
+      <h2 id="featured-projects-title">From infrastructure to useful applications.</h2>
       <div class="project-grid">
         {featuredProjects.map((project) => <ProjectCard project={project} />)}
       </div>
+      <a class="section-link" href="/projects/">Browse all projects by area</a>
+    </section>
+
+    <section class="home-section home-section--award" data-reveal aria-labelledby="awards-title">
+      <p class="eyebrow">Recognition</p>
+      <h2 id="awards-title">Hackathon winner.</h2>
+      {
+        siteConfig.awards.map((award) => (
+          <a class="award" href={award.href}>
+            <strong>{award.title}</strong>
+            <div>
+              <h3>
+                {award.event} · {award.year}
+              </h3>
+              <p>{award.detail}</p>
+            </div>
+            <span>Explore the project</span>
+          </a>
+        ))
+      }
+    </section>
+
+    <section class="home-section" data-reveal aria-labelledby="research-title">
+      <p class="eyebrow">Research</p>
+      <h2 id="research-title">Applied AI and circular statistics.</h2>
+      <div class="research-grid">
+        {
+          siteConfig.research.map((paper, index) => (
+            <article class="research-preview">
+              <p class="status-label">
+                {paper.status} · {paper.year} · First author
+              </p>
+              <h3>
+                <a href={`/research/#paper-${index + 1}`}>{paper.title}</a>
+              </h3>
+              <p>{paper.contribution.replace('First author. ', '')}</p>
+            </article>
+          ))
+        }
+      </div>
+      <a class="section-link" href="/research/#research">Read research details</a>
     </section>
 
     <section class="home-section" data-reveal aria-labelledby="writing-title">
-      <p class="eyebrow">03. Writing</p>
+      <p class="eyebrow">Writing</p>
       <h2 id="writing-title">Notes from building the systems.</h2>
+      <p class="about-copy">
+        Project stories and practical lessons from the code, models, and tools I work with.
+      </p>
       {featuredPost && <PostCard post={featuredPost} featured />}
       <div class="post-grid">
         {supportingPosts.map((post) => <PostCard post={post} headingLevel="h3" />)}
@@ -84,10 +155,129 @@ const featuredCredentials = certificationSchema
 </BaseLayout>
 
 <style>
+  .audience-paths {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+  .audience-paths a {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+  .audience-paths a:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+  .audience-paths strong {
+    font-size: 1.1rem;
+  }
+  .audience-paths a > span:last-child {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+  .audience-paths__count {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+  }
+  .hero__contact {
+    align-self: center;
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
   .hero {
-    padding-block: clamp(var(--space-6), 10vw, 8rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(16rem, 1fr);
+    align-items: center;
+    gap: var(--space-6);
+    padding-block: clamp(var(--space-6), 7vw, 6rem);
   }
 
+  .award {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    text-decoration: none;
+  }
+  .award > strong {
+    color: var(--color-accent);
+    font-size: 2rem;
+  }
+  .award h3,
+  .award p {
+    margin: 0;
+  }
+  .award p {
+    color: var(--color-text-muted);
+  }
+  .award > span {
+    margin-left: auto;
+    color: var(--color-accent);
+  }
+  .hero__current {
+    padding: var(--space-5);
+    border: 1px solid var(--color-border-strong);
+    border-top: 2px solid var(--color-accent);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+  }
+  .hero__current > div {
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .hero__current h2 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .hero__current div p {
+    margin: 0.3rem 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+  }
+  .hero__current > a {
+    display: inline-block;
+    margin-top: var(--space-4);
+    color: var(--color-accent);
+  }
+  .section-link {
+    justify-self: start;
+    color: var(--color-accent);
+  }
+  .research-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+  .research-preview {
+    padding: var(--space-4);
+    border-left: 2px solid var(--color-accent);
+    background: var(--color-surface);
+  }
+  .research-preview h3 {
+    margin: var(--space-3) 0;
+    font-size: 1.2rem;
+    line-height: 1.45;
+  }
+  .research-preview h3 a {
+    text-decoration: none;
+  }
+  .research-preview > p:last-child {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+  }
   .hero__intro {
     margin: 0;
     color: var(--color-accent);
@@ -96,9 +286,9 @@ const featuredCredentials = certificationSchema
   }
 
   h1 {
-    max-width: 15ch;
+    max-width: 18ch;
     margin: var(--space-3) 0 var(--space-4);
-    font-size: clamp(2.7rem, 7vw, 6rem);
+    font-size: clamp(2.65rem, 5.2vw, 4.6rem);
     letter-spacing: -0.055em;
     line-height: 0.98;
   }
@@ -120,13 +310,17 @@ const featuredCredentials = certificationSchema
 
   .home {
     display: grid;
-    gap: var(--space-7);
+    gap: var(--space-6);
     padding-bottom: var(--space-7);
   }
 
   .home-section {
     display: grid;
     gap: var(--space-3);
+  }
+
+  .home-section.home-section--award h2 {
+    font-size: 1.5rem;
   }
 
   .home-section h2 {
@@ -144,7 +338,17 @@ const featuredCredentials = certificationSchema
     gap: var(--space-3);
   }
 
+  .post-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   @media (max-width: 60rem) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+    .hero__current {
+      max-width: 43rem;
+    }
     .project-grid,
     .post-grid,
     .credential-grid {
@@ -153,6 +357,18 @@ const featuredCredentials = certificationSchema
   }
 
   @media (max-width: 44rem) {
+    .audience-paths {
+      grid-template-columns: 1fr;
+    }
+    .hero__current {
+      padding: var(--space-4);
+    }
+    .hero {
+      padding-block: var(--space-6);
+    }
+    .research-grid {
+      grid-template-columns: 1fr;
+    }
     .project-grid,
     .post-grid,
     .credential-grid {

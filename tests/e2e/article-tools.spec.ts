@@ -65,12 +65,12 @@ test('copy-link control reports clipboard success and writes the canonical artic
   await expect(button).toBeVisible();
   await expect(button.locator('xpath=..')).toHaveAttribute(
     'data-value',
-    'https://abdulrahman-111.github.io/blog/from-terraform-to-gitops/',
+    'https://abdulrahman-111.github.io/blog/cityfix-solvethe17-hackathon-journey/',
   );
   await button.click();
   await expect(page.locator('html')).toHaveAttribute(
     'data-copied-value',
-    'https://abdulrahman-111.github.io/blog/from-terraform-to-gitops/',
+    'https://abdulrahman-111.github.io/blog/cityfix-solvethe17-hackathon-journey/',
   );
   await expect(button).toContainText('Copied');
   await expect(page.locator('[data-copy-status]').first()).toHaveText('Article link copied.');

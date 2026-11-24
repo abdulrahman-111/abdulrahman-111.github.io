@@ -5,6 +5,11 @@ import { siteConfig } from '../data/site';
 
 <footer class="site-footer">
   <div class="page-shell site-footer__inner">
+    <nav class="footer-pages" aria-label="Explore the portfolio">
+      <a href="/projects/">Projects</a><a href="/research/">Research</a><a href="/about/#experience"
+        >Experience</a
+      ><a href="/resume/">CV and résumés</a><a href="#top">Back to top</a>
+    </nav>
     <p>Designed and built by {siteConfig.name} with Astro. Deployed on GitHub Pages.</p>
     <nav aria-label="Footer links">
       <SocialLinks ariaLabel="Footer profile links" />
@@ -29,6 +34,10 @@ import { siteConfig } from '../data/site';
     font-size: 0.82rem;
   }
 
+  .footer-pages {
+    width: 100%;
+    padding-bottom: var(--space-3);
+  }
   .site-footer p {
     margin: 0;
   }

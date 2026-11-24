@@ -1,8 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import ProjectDiscovery from '../../components/ProjectDiscovery.astro';
 import ContactCta from '../../components/ContactCta.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
+import { projectDomains } from '../../lib/content-schemas';
+import { slugify } from '../../lib/content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const projects = (await getCollection('projects')).sort(
@@ -12,17 +15,59 @@ const projects = (await getCollection('projects')).sort(
 
 <BaseLayout
   title="Projects | Abdulrahman Gomaa Hassan"
-  description="Verified ML systems, infrastructure, and systems-programming case studies."
+  description="Explore cloud delivery, bilingual web applications, applied machine learning, and systems programming projects."
 >
   <section class="projects page-shell">
     <SectionHeader
-      eyebrow="Project inventory"
-      title="Systems, evidence, and engineering boundaries."
-      description="Case studies are ordered by portfolio rank and distinguish each collaborative system’s capabilities from my verified contribution."
+      eyebrow="Selected work & experiments"
+      title="Find the work that matters to you."
+      description="Explore what I built, the decisions behind it, and the available code. Team projects include my specific contributions and prototype limitations."
     />
-    <div class="projects__grid" data-reveal>
-      {projects.map((project) => <ProjectCard project={project} />)}
-    </div>
+    <ProjectDiscovery total={projects.length}>
+      <nav id="all-projects" class="project-domains" aria-label="Project areas">
+        <a href="#all-projects" data-project-area>All areas <span>{projects.length}</span></a>
+        {
+          projectDomains.map((domain) => (
+            <a href={`#${slugify(domain)}`} data-project-area>
+              {domain}{' '}
+              <span>{projects.filter((project) => project.data.domain === domain).length}</span>
+            </a>
+          ))
+        }
+      </nav>
+      <div id="project-results">
+        {
+          projectDomains.map((domain) => (
+            <section
+              class="project-group"
+              data-project-group={domain}
+              id={slugify(domain)}
+              aria-labelledby={`${slugify(domain)}-title`}
+            >
+              <h2 id={`${slugify(domain)}-title`}>{domain}</h2>
+              <div class="projects__grid">
+                {projects
+                  .filter((project) => project.data.domain === domain)
+                  .map((project) => (
+                    <div
+                      data-project-item
+                      data-area={slugify(domain)}
+                      data-search={[
+                        project.data.title,
+                        project.data.summary,
+                        project.data.domain,
+                        ...project.data.tags,
+                      ].join(' ')}
+                    >
+                      <ProjectCard project={project} headingLevel="h3" />
+                    </div>
+                  ))}
+              </div>
+            </section>
+          ))
+        }
+      </div>
+    </ProjectDiscovery>
     <ContactCta />
   </section>
 </BaseLayout>
@@ -30,10 +75,46 @@ const projects = (await getCollection('projects')).sort(
 <style>
   .projects {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
     padding-block: var(--space-6);
   }
 
+  .project-domains {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .project-domains a {
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+  }
+  .project-domains span {
+    margin-left: var(--space-1);
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+  }
+  .projects > * {
+    min-width: 0;
+  }
+  #project-results {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .project-domains a[aria-current] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+  .project-group {
+    scroll-margin-top: calc(var(--site-header-height) + var(--space-5));
+  }
+  .project-group > h2 {
+    margin: 0 0 var(--space-4);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+  }
   .projects__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));

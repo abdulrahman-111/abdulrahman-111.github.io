@@ -1,8 +1,9 @@
 ---
 title: FIFA Career Mode AI Assistant
 summary: A collaborative football analysis system spanning match simulation, squad planning, transfer decisions, dashboards, and generated scouting reports.
+domain: Machine learning
 rank: 3
-featured: true
+featured: false
 period: Apr–Jun 2026
 tags:
   - Python
@@ -20,52 +21,38 @@ contribution:
 
 ## Context
 
-Career-mode decisions combine several kinds of evidence. A squad-planning question is not the same as predicting an injury, valuing a player, estimating an event outcome, or simulating a match. This collaborative project brings those tasks into one analysis system while preserving their different targets and limitations.
-
-The work covers match simulation, player development and squad planning, transfer decisions, dashboards, and an automatically generated `.docx` scouting report. Its value is not a single headline score; it is the way separate models feed a decision-support workflow.
-
-## System capability
-
-The overall team system includes match simulation, player development and squad planning, and a transfer-decision workflow. It can produce a generated `.docx` scouting report so model outputs and supporting analysis can be reviewed as an artifact rather than only as console output.
-
-Project-reported position-classification accuracy is 82.82%. Project-reported overall-rating R² is 0.9801. Project-reported injury accuracy is 95.0%. Project-reported injury recall is 96.25%. Project-reported shot-outcome accuracy is 89.7%. Project-reported match-winner overall accuracy is 51.7%.
-
-Those results belong to the collaborative project. My verified scope is the transfer-decision engine described below, not every model in the repository.
+A team-built decision-support application for FIFA Career Mode, combining match analysis, player evaluation, squad planning, and transfer analysis. Python, pandas, NumPy, and scikit-learn provide the modeling stack; dashboards and generated DOCX scouting reports present the outputs.
 
 ## Architecture
 
-The system is organized around related but distinct decision domains:
+The application separates three modeling domains:
 
-1. **Player understanding** supports position and rating analysis.
-2. **Squad planning** uses player-development and roster information.
-3. **Match analysis** covers shot outcomes and winner prediction.
-4. **Transfer decisions** combine injury risk, performance prediction, and market-value information.
-5. **Decision presentation** turns analysis into dashboards and a generated scouting document.
+- **Match analysis:** a decision tree predicts shot outcomes; separate linear regressions estimate home and away goals, from which the winner is derived.
+- **Player development:** logistic regression predicts positions, polynomial regression estimates structured game ratings, and nearest-neighbor search retrieves similar players.
+- **Transfer analysis:** a logistic-regression pipeline estimates injury risk, while random forests predict goals, assists, and market value.
 
-This separation prevents one strong model from masking a weaker one. A high rating fit does not validate a match-winner model, and a transfer recommendation should preserve the provenance of each contributing signal.
-
-## Constraints and trade-offs
-
-The repository's limitations are part of the result. The overall-rating performance reflects structured FIFA ratings; it should not be generalized into a claim about open-ended player quality. Project-reported match-winner overall accuracy is 51.7%, which is weak, so that model is not a reliable decision boundary simply because it is part of the same system.
-
-The datasets also need standardization. Differences in feature names, units, missing values, or categorical encodings can make a pipeline appear to work while joining incompatible meanings. Standardization work is therefore a prerequisite for comparing or composing model outputs responsibly.
-
-Generated reports introduce another trade-off. A `.docx` artifact improves reviewability, but polished presentation can make uncertain predictions look more authoritative than they are. Reports and dashboards need to retain metric labels and limitations instead of flattening every signal into a definitive recommendation.
-
-## Implementation
-
-The implementation connects analytical components through a decision workflow rather than treating them as one model. Match simulation and player-development/squad-planning capabilities address their own questions. The transfer path brings together an injury classifier, performance prediction, and market-value work before producing dashboard views and an automated scouting report.
-
-The generated `.docx` report is an output boundary: it packages analysis for review. That boundary is useful because it forces the system to decide which inputs, predictions, and caveats belong in a scouting artifact, while dashboards provide a more interactive view of the same decision space.
+The datasets include StatsBomb events, EA Sports FC 24 player attributes, historical player statistics, injury records, and transfer-fee data. Their schemas and feature definitions require alignment before model outputs can be combined consistently.
 
 ## My contribution
 
-I built the transfer-decision engine with Seif. My verified work within that scope includes the injury classifier, performance prediction, market-value work, automated scouting report, and dashboards.
+I built the transfer-decision engine with Seif: the injury classifier, future-performance predictions, market-value model, automated scouting report, and transfer dashboards. Match simulation and player-development models belong to the wider team implementation.
 
-The match simulation and player-development/squad-planning capabilities describe the wider collaborative system. I do not present those components, or the full repository architecture, as solely mine.
+## Evaluation and limitations
 
-## Outcomes and learning
+The repository reports these metrics. They measure different tasks and should not be compared as a single system score.
 
-The results demonstrate why model-specific evaluation matters. Project-reported position-classification accuracy is 82.82%. Project-reported overall-rating R² is 0.9801 on structured FIFA ratings. Project-reported injury accuracy is 95.0%. Project-reported injury recall is 96.25%. Project-reported shot-outcome accuracy is 89.7%. Project-reported match-winner overall accuracy is 51.7%.
+| Task                                 | Reported metric               |
+| ------------------------------------ | ----------------------------- |
+| Position classification              | 82.82% accuracy               |
+| Structured overall-rating regression | R² = 0.9801                   |
+| Injury classification                | 95.0% accuracy; 96.25% recall |
+| Shot classification                  | 89.7% accuracy                |
+| Match-winner prediction              | 51.7% overall accuracy        |
 
-The learning is as much about restraint as prediction. A decision-support system should expose weak components, dataset standardization needs, and the scope of each metric. Combining models becomes useful only when the interface preserves those boundaries rather than manufacturing confidence from aggregation.
+The high rating R² reflects structured game attributes, rather than demonstrated real-world scouting accuracy. Transfer valuation omits factors including contract length and wages. Historical injury and performance models do not account for all in-game events. The match-winner result, particularly weak draw prediction, limits its use as a forecasting tool.
+
+## Outputs
+
+The transfer workflow produces dashboards and a DOCX scouting report containing predictions and a recommendation score. The report is a review artifact; combining outputs does not remove each model's uncertainty or dataset limitations.
+
+[Review the repository's model definitions and results](https://github.com/abdulrahman-111/Football-Data-Analysis/blob/main/readme.md).

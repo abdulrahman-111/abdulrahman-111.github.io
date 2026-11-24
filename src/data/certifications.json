@@ -15,19 +15,20 @@
     "category": "professional",
     "previewPath": "/certificates/aws-certified-cloud-practitioner.webp",
     "featured": true,
-    "skills": ["AWS", "Cloud fundamentals"]
+    "skills": ["AWS", "Cloud fundamentals", "CLF-C02"]
   },
   {
-    "name": "Duolingo English Test — CEFR B2 (115)",
+    "name": "Duolingo English Test \u2014 CEFR B2 (115)",
     "issuer": "Duolingo",
     "issued": "2025-05-06",
     "category": "language",
     "previewPath": "/certificates/duolingo-english-test.webp",
     "featured": false,
-    "skills": ["English — CEFR B2", "Overall score 115"]
+    "skills": ["English \u2014 CEFR B2", "Overall score 115"],
+    "verificationUrl": "https://certs.duolingo.com/3nzcfz1rk1r8p002"
   },
   {
-    "name": "Python Programming — Introduction & Intermediate",
+    "name": "Python Programming \u2014 Introduction & Intermediate",
     "issuer": "MCIT",
     "issued": "2025-09-04",
     "category": "programming-systems",
@@ -101,7 +102,7 @@
   },
   {
     "name": "DevOps Foundations",
-    "issuer": "Sprints × Microsoft",
+    "issuer": "Sprints \u00d7 Microsoft",
     "category": "cloud-devops",
     "previewPath": "/certificates/sprints-devops-foundations.webp",
     "featured": true,

@@ -1,0 +1,90 @@
+---
+import ResearchList from '../components/ResearchList.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ContactCta from '../components/ContactCta.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../data/site';
+---
+
+<BaseLayout
+  title={`Research | ${siteConfig.name}`}
+  description="Two first-author submitted journal manuscripts in chest X-ray analysis and circular statistics, with authors, methods, and contributions."
+>
+  <div class="research page-shell">
+    <SectionHeader
+      eyebrow="Research"
+      title="Studying models, attention, and uncertainty."
+      description="My research spans applied medical imaging and circular statistics. Both first-author journal manuscripts below are submitted; publication decisions are pending."
+    />
+    <div class="research-context">
+      <div>
+        <p class="eyebrow">Current collaboration</p><h2>Nile University · CIS</h2><p>
+          Research Assistant working on AI-powered pneumonia detection under Prof. Mai Mohamed Said
+          Mahmoud Mabrouk.
+        </p><a href="/about/#experience">Research experience</a>
+      </div>
+      <div>
+        <p class="eyebrow">Methods</p><h2>From derivation to evaluation.</h2><p>
+          Mathematical modeling, Monte Carlo simulation, numerical estimation, classification
+          evaluation, and Grad-CAM analysis.
+        </p><a href="https://orcid.org/0009-0000-0790-9506">View ORCID profile</a>
+      </div>
+    </div>
+    <section id="research" aria-labelledby="manuscripts-title">
+      <div class="research-heading">
+        <h2 id="manuscripts-title">Submitted manuscripts</h2><span
+          >2 manuscripts · First author</span
+        >
+      </div>
+      <ResearchList />
+    </section>
+    <ContactCta />
+  </div>
+</BaseLayout>
+
+<style>
+  .research {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+  }
+  .research-context {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .research-context > div {
+    padding: var(--space-4);
+    border-top: 1px solid var(--color-border-strong);
+  }
+  .research-context h2 {
+    font-size: 1.3rem;
+  }
+  .research-context p:not(.eyebrow) {
+    color: var(--color-text-muted);
+  }
+  .research-context a {
+    color: var(--color-accent);
+  }
+  .research-heading {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+  }
+  .research-heading h2 {
+    margin: 0;
+    font-size: clamp(1.7rem, 4vw, 2.4rem);
+  }
+  .research-heading span {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+  @media (max-width: 40rem) {
+    .research-context {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

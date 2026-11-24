@@ -4,37 +4,41 @@ import TagList from './TagList.astro';
 
 interface Props {
   project: CollectionEntry<'projects'>;
+  headingLevel?: 'h2' | 'h3';
 }
 
-const { project } = Astro.props;
+const { project, headingLevel: Heading = 'h2' } = Astro.props;
 ---
 
 <article class="project-card">
   <div class="project-card__meta">
-    <span>{String(project.data.rank).padStart(2, '0')}</span>
-    <span>{project.data.period}</span>
+    <span>{project.data.domain}</span>
+    <span>{project.data.status ?? project.data.period}</span>
     <span>{project.data.collaborative ? 'Collaborative' : 'Solo'}</span>
   </div>
-  <h2><a href={`/projects/${project.id}/`}>{project.data.title}</a></h2>
+  <Heading><a href={`/projects/${project.id}/`}>{project.data.title}</a></Heading>
   <p>{project.data.summary}</p>
   {
     project.data.collaborative && (
       <p class="project-card__contribution">
-        <strong>Contribution:</strong> {project.data.contribution.join(' ')}
+        <strong>Contribution:</strong> {project.data.contribution[0]}
       </p>
     )
   }
-  <TagList tags={project.data.tags} />
-  <a class="project-card__link" href={`/projects/${project.id}/`}>
-    Read case study <span aria-hidden="true">→</span>
-  </a>
+  <TagList tags={project.data.tags.slice(0, 4)} />
+  <a
+    class="project-card__link"
+    href={`/projects/${project.id}/`}
+    aria-label={`Read ${project.data.title} case study`}>Read case study</a
+  >
 </article>
 
 <style>
   .project-card {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     gap: var(--space-3);
-    min-height: 100%;
+    height: 100%;
     padding: var(--space-4);
     border: 1px solid transparent;
     border-radius: var(--radius);
@@ -58,7 +62,7 @@ const { project } = Astro.props;
     gap: var(--space-2);
     color: var(--color-accent);
     font-family: var(--font-mono);
-    font-size: 0.74rem;
+    font-size: 0.875rem;
     text-transform: uppercase;
   }
 
@@ -68,13 +72,13 @@ const { project } = Astro.props;
     content: '·';
   }
 
-  .project-card h2 {
+  .project-card :is(h2, h3) {
     margin: 0;
     font-size: clamp(1.45rem, 3vw, 2rem);
     line-height: 1.15;
   }
 
-  .project-card h2 a {
+  .project-card :is(h2, h3) a {
     text-decoration: none;
   }
 
@@ -90,11 +94,15 @@ const { project } = Astro.props;
     font-size: 0.9rem;
   }
 
+  .project-card :global(.tag-list) {
+    margin-top: auto;
+  }
+
   .project-card__link {
-    align-self: end;
+    align-self: start;
     color: var(--color-accent);
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     font-weight: 700;
   }
 

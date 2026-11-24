@@ -1,6 +1,8 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import ArchitectureDiagram from '../../components/ArchitectureDiagram.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
 import ContactCta from '../../components/ContactCta.astro';
 import TagList from '../../components/TagList.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -19,7 +21,11 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const { Content } = await render(project);
+const { Content, headings } = await render(project);
+const related = (await getCollection('projects'))
+  .filter((item) => item.id !== project.id && item.data.domain === project.data.domain)
+  .sort((a, b) => a.data.rank - b.data.rank)
+  .slice(0, 2);
 ---
 
 <BaseLayout
@@ -29,17 +35,29 @@ const { Content } = await render(project);
   type="article"
 >
   <article class="project-detail">
+    <nav class="breadcrumbs page-shell" aria-label="Breadcrumb">
+      <a href="/projects/">All projects</a><span aria-hidden="true">/</span><a
+        href={`/projects/#${project.data.domain.toLowerCase().replaceAll(' ', '-')}`}
+        >{project.data.domain}</a
+      ><span aria-hidden="true">/</span><span aria-current="page">{project.data.title}</span>
+    </nav>
     <header class="project-hero page-shell" data-reveal>
       <div class="project-hero__meta">
-        <span>Rank {String(project.data.rank).padStart(2, '0')}</span>
-        <span>{project.data.period}</span>
+        <span>{project.data.domain}</span>
+        <span>{project.data.status ?? project.data.period}</span>
         <span>{project.data.collaborative ? 'Collaborative system' : 'Solo system'}</span>
       </div>
       <h1>{project.data.title}</h1>
       <p>{project.data.summary}</p>
       <TagList tags={project.data.tags} />
       <div class="project-hero__actions">
-        <a class="button-link" href={project.data.repoUrl}>View repository</a>
+        {
+          project.data.repoUrl && (
+            <a class="button-link" href={project.data.repoUrl}>
+              View repository
+            </a>
+          )
+        }
         {
           project.data.demoUrl && (
             <a class="button-link button-link--secondary" href={project.data.demoUrl}>
@@ -60,9 +78,23 @@ const { Content } = await render(project);
       }
     </section>
 
-    <div class="project-prose page-shell" data-reveal>
-      <Content />
+    <div class="project-reading page-shell">
+      <aside class="project-reading__nav"><TableOfContents headings={headings} /></aside>
+      <div class="project-prose" data-reveal><Content /></div>
     </div>
+    {
+      related.length > 0 && (
+        <section class="related-work page-shell" aria-labelledby="related-projects-title">
+          <p class="eyebrow">Keep exploring</p>
+          <h2 id="related-projects-title">More in {project.data.domain.toLowerCase()}</h2>
+          <div>
+            {related.map((item) => (
+              <ProjectCard project={item} headingLevel="h3" />
+            ))}
+          </div>
+        </section>
+      )
+    }
 
     <div class="project-contact page-shell" data-reveal>
       <ContactCta />
@@ -85,7 +117,7 @@ const { Content } = await render(project);
     gap: var(--space-2);
     color: var(--color-accent);
     font-family: var(--font-mono);
-    font-size: 0.76rem;
+    font-size: 0.875rem;
     text-transform: uppercase;
   }
 
@@ -130,9 +162,53 @@ const { Content } = await render(project);
     box-shadow: 0 0.625rem 1.875rem rgb(2 12 27 / 35%);
   }
 
-  .project-prose {
-    max-width: 50rem;
+  .breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: var(--space-5);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+  .breadcrumbs a {
+    color: var(--color-accent);
+  }
+  .project-reading {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 2fr);
+    gap: var(--space-5);
     margin-top: var(--space-6);
+  }
+  .project-reading__nav {
+    align-self: start;
+    position: sticky;
+    top: calc(var(--site-header-height) + var(--space-4));
+    max-height: calc(100dvh - 8rem);
+    overflow-y: auto;
+  }
+  .project-prose {
+    min-width: 0;
+  }
+  .project-prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .related-work {
+    margin-top: var(--space-6);
+  }
+  .related-work > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+  @media (max-width: 48rem) {
+    .project-reading,
+    .related-work > div {
+      grid-template-columns: 1fr;
+    }
+    .project-reading__nav {
+      position: static;
+      max-height: none;
+    }
   }
 
   .project-prose :global(h2) {
@@ -147,6 +223,28 @@ const { Content } = await render(project);
     color: var(--color-text-muted);
   }
 
+  .project-prose :global(table) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin-block: var(--space-4);
+    font-size: 0.95rem;
+  }
+  .project-prose :global(th),
+  .project-prose :global(td) {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border-strong);
+    text-align: left;
+    vertical-align: top;
+  }
+  .project-prose :global(th) {
+    background: var(--color-surface);
+  }
+  .project-prose :global(a) {
+    color: var(--color-accent);
+  }
   .project-prose :global(strong) {
     color: var(--color-text);
   }

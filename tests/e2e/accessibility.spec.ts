@@ -4,7 +4,11 @@ import { expect, test } from '@playwright/test';
 const routeFamilies = [
   '/',
   '/projects/',
+  '/research/',
   '/projects/end-to-end-devops-pipeline/',
+  '/projects/rv32i-minios/',
+  '/blog/cityfix-solvethe17-hackathon-journey/',
+  '/blog/category/project-stories/',
   '/blog/',
   '/blog/from-terraform-to-gitops/',
   '/blog/tag/kubernetes/',

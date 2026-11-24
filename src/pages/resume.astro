@@ -7,22 +7,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title={`Résumé | ${siteConfig.name}`}
-  description="Download Abdulrahman Gomaa Hassan’s role-specific ML/AI or DevOps/Cloud résumé."
+  description="Download Abdulrahman Gomaa Hassan’s complete CV or a résumé focused on ML/AI or DevOps/Cloud."
 >
   <section class="resume page-shell">
     <SectionHeader
       eyebrow="Role-aligned documents"
       title="Choose the résumé aligned with the role."
-      description="Both documents are compiled from the source LaTeX résumés and kept separate so the most relevant engineering signal is easy to review."
+      description="Get the complete CV, or choose a version focused on ML/AI or DevOps/Cloud. All documents include the updated experience, internships, and submitted research."
     />
     <div class="resume__grid" data-reveal>
       {
         siteConfig.resumes.map((resume, index) => (
           <article>
-            <p class="eyebrow">Profile {String(index + 1).padStart(2, '0')}</p>
+            <p class="eyebrow">{index === 0 ? 'Full background' : 'Role focus'}</p>
             <h2>{resume.label}</h2>
             <p>{resume.focus}</p>
-            <a class="button-link" href={resume.href} download>
+            <a
+              class:list={['button-link', { 'button-link--primary': index === 0 }]}
+              href={resume.href}
+              download
+            >
               Download {resume.label}
             </a>
           </article>
@@ -30,7 +34,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
     </div>
     <p class="resume__note">
-      Each button downloads a standard PDF that you can also open directly in a browser.
+      Updated November 2026. Each button downloads a standard PDF that you can also open directly in
+      a browser.
     </p>
     <ContactCta />
   </section>
@@ -44,7 +49,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   .resume__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
     gap: var(--space-3);
   }
   .resume__grid article {

@@ -3,7 +3,11 @@ import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { certificationSchema } from '../../src/lib/content-schemas';
 
-const resumePaths = ['/resume/devops-cloud-resume.pdf', '/resume/ml-ai-resume.pdf'] as const;
+const resumePaths = [
+  '/resume/master-cv.pdf',
+  '/resume/devops-cloud-resume.pdf',
+  '/resume/ml-ai-resume.pdf',
+] as const;
 const certificatePreviewPaths = [
   '/certificates/aws-ai-practitioner-challenge.webp',
   '/certificates/aws-certified-cloud-practitioner.webp',

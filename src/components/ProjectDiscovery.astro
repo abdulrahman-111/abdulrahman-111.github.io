@@ -1,0 +1,172 @@
+---
+interface Props {
+  total: number;
+}
+const { total } = Astro.props;
+---
+
+<project-discovery>
+  <form
+    class="project-search"
+    role="search"
+    aria-label="Find projects"
+    data-project-controls
+    hidden
+  >
+    <label for="project-query">Find a project</label>
+    <div class="project-search__field">
+      <input
+        id="project-query"
+        name="q"
+        type="search"
+        placeholder="Search a project, technology, or topic…"
+        autocomplete="off"
+        aria-controls="project-results"
+      />
+      <button type="button" data-project-reset>Reset filters</button>
+    </div>
+    <p data-project-count role="status" aria-live="polite">{total} projects</p>
+  </form>
+  <slot />
+  <div class="project-empty" data-project-empty hidden>
+    <h2>No projects match these filters.</h2>
+    <p>
+      Try a technology such as Python, Docker, or TypeScript, or reset the filters to see all work.
+    </p>
+  </div>
+</project-discovery>
+
+<script>
+  class ProjectDiscovery extends HTMLElement {
+    connectedCallback() {
+      const form = this.querySelector<HTMLFormElement>('[data-project-controls]');
+      const input = this.querySelector<HTMLInputElement>('input[name="q"]');
+      const count = this.querySelector<HTMLElement>('[data-project-count]');
+      const empty = this.querySelector<HTMLElement>('[data-project-empty]');
+      const reset = this.querySelector<HTMLButtonElement>('[data-project-reset]');
+      const groups = [...this.querySelectorAll<HTMLElement>('[data-project-group]')];
+      const links = [...this.querySelectorAll<HTMLAnchorElement>('[data-project-area]')];
+      const items = [...this.querySelectorAll<HTMLElement>('[data-project-item]')];
+      if (!form || !input || !count || !empty || !reset) return;
+      const normalize = (value: string) => value.toLocaleLowerCase('en-US').trim();
+      const index = items.map((element) => ({
+        element,
+        text: normalize(element.dataset.search ?? ''),
+        area: element.dataset.area,
+      }));
+      const apply = () => {
+        const requestedArea = window.location.hash.slice(1);
+        const area = groups.some((group) => group.id === requestedArea) ? requestedArea : '';
+        const tokens = normalize(input.value).split(/\s+/).filter(Boolean);
+        let visible = 0;
+        for (const item of index) {
+          item.element.hidden =
+            Boolean(area && item.area !== area) ||
+            !tokens.every((token) => item.text.includes(token));
+          if (!item.element.hidden) visible += 1;
+        }
+        for (const group of groups) {
+          group.hidden = !group.querySelector('[data-project-item]:not([hidden])');
+        }
+        for (const link of links) {
+          const selected = link.hash === `#${area || 'all-projects'}`;
+          if (selected) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        }
+        count.textContent = `${visible} ${visible === 1 ? 'project' : 'projects'}${area ? ` in ${groups.find((group) => group.id === area)?.dataset.projectGroup}` : ''}`;
+        empty.hidden = visible > 0;
+        reset.disabled = !input.value && !area;
+      };
+      const restore = () => {
+        input.value = new URL(location.href).searchParams.get('q') ?? '';
+        apply();
+      };
+      form.addEventListener('submit', (event) => event.preventDefault());
+      input.addEventListener('input', () => {
+        const url = new URL(location.href);
+        if (input.value.trim()) url.searchParams.set('q', input.value);
+        else url.searchParams.delete('q');
+        history.replaceState(null, '', url);
+        apply();
+      });
+      reset.addEventListener('click', () => {
+        const url = new URL(location.href);
+        url.searchParams.delete('q');
+        url.hash = '';
+        history.pushState(null, '', url);
+        restore();
+        input.focus();
+      });
+      window.addEventListener('hashchange', apply);
+      window.addEventListener('popstate', restore);
+      restore();
+      form.hidden = false;
+    }
+  }
+  customElements.define('project-discovery', ProjectDiscovery);
+</script>
+
+<style>
+  project-discovery {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+  .project-search {
+    padding: var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+  }
+  .project-search label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  .project-search__field {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .project-search input {
+    flex: 1 1 20rem;
+    min-width: 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: var(--color-canvas);
+    color: var(--color-text-strong);
+  }
+  .project-search input::placeholder {
+    color: var(--color-text-muted);
+  }
+  .project-search button {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .project-search button:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+  }
+  .project-search p {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+  .project-empty {
+    padding: var(--space-5);
+    border: 1px dashed var(--color-border-strong);
+    border-radius: var(--radius);
+  }
+  .project-empty h2 {
+    font-size: 1.3rem;
+  }
+  .project-empty p {
+    color: var(--color-text-muted);
+  }
+</style>

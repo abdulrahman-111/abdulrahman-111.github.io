@@ -1,6 +1,11 @@
 import { z } from 'astro/zod';
 
-export const blogCategories = ['devops', 'ml-systems', 'systems-programming'] as const;
+export const blogCategories = [
+  'devops',
+  'ml-systems',
+  'systems-programming',
+  'project-stories',
+] as const;
 export const certificationCategories = [
   'professional',
   'ml-ai',
@@ -29,15 +34,24 @@ export const blogSchema = z.object({
   draft: z.boolean(),
 });
 
+export const projectDomains = [
+  'Cloud and DevOps',
+  'Web applications',
+  'Machine learning',
+  'Systems programming',
+] as const;
+
 export const projectSchema = z
   .object({
     title: z.string().trim().min(1),
     summary: z.string().trim().min(1),
+    domain: z.enum(projectDomains).default('Systems programming'),
     rank: z.number().int().positive(),
     featured: z.boolean(),
     period: z.string().trim().min(1),
     tags: z.array(z.string().trim().min(1)).min(1),
-    repoUrl: z.string().url(),
+    repoUrl: z.string().url().optional(),
+    status: z.enum(['Ongoing', 'Completed']).optional(),
     demoUrl: z.string().url().optional(),
     collaborative: z.boolean(),
     contribution: z.array(z.string().trim().min(1)),
