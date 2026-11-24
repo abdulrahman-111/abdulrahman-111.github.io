@@ -32,10 +32,12 @@ test('homepage uses simple narrative sections and preserves primary message', as
       name: 'I build intelligent systems—and the infrastructure behind them.',
     }),
   ).toBeVisible();
-  await expect(page.getByText('01. About')).toBeVisible();
-  await expect(page.getByText('02. Selected Work')).toBeVisible();
-  await expect(page.getByText('03. Writing')).toBeVisible();
-  await expect(page.getByText('04. Contact')).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Explore by interest' })).toBeVisible();
+  await expect(page.getByText('Selected work', { exact: true })).toBeVisible();
+  await expect(
+    page.locator('.home-section > .eyebrow').filter({ hasText: /^Writing$/ }),
+  ).toBeVisible();
+  await expect(page.getByText('Contact', { exact: true })).toBeVisible();
   await expect(page.locator('.hero__console')).toHaveCount(0);
   await expect(page.locator('.status-strip')).toHaveCount(0);
   await expect(

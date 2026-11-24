@@ -1,4 +1,5 @@
 ---
+import ResearchList from '../components/ResearchList.astro';
 import ContactCta from '../components/ContactCta.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import SocialLinks from '../components/SocialLinks.astro';
@@ -14,24 +15,32 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <SectionHeader
       eyebrow="Profile · Cairo"
       title="Engineering across model and infrastructure boundaries."
-      description="I approach intelligent applications as systems: models, data paths, deployment boundaries, observability, and the low-level behavior underneath them all matter."
+      description="DevOps engineering, applied AI research, and Computer Engineering at Egypt University of Informatics. Explore my roles, internships, technical work, and academic background."
     />
 
+    <nav class="section-nav" aria-label="About sections">
+      <a href="#experience">Experience</a><a href="#research">Research</a><a href="#awards"
+        >Awards</a
+      ><a href="#education">Education</a><a href="#skills">Skills</a><a href="#leadership"
+        >Leadership</a
+      >
+    </nav>
     <div class="about__intro panel" data-reveal>
       <p>
-        I’m a Computer Engineering student at Egypt University of Informatics, preparing for roles
-        where machine learning and platform engineering meet. My work ranges from computer vision
-        workflows and decision-support systems to Kubernetes delivery, cloud automation, and Linux
-        process management.
+        I’m a Computer Engineering student at Egypt University of Informatics, a DevOps Engineer at
+        Azouz Tech Group, and a Research Assistant at Nile University’s Center for Informatics
+        Science. My work spans chest X-ray analysis, circular statistics, cloud automation, and
+        Linux systems.
       </p>
       <p>
-        I care about explicit ownership, repeatable delivery, and technical explanations that
-        separate verified contributions from whole-project capabilities.
+        I pair hands-on engineering with teaching and research: supporting more than 200 students as
+        a Junior Teaching Assistant, contributing to two submitted journal manuscripts, and leading
+        technical activities with the IEEE EUI Student Branch.
       </p>
     </div>
 
-    <section aria-labelledby="experience-title" data-reveal>
-      <p class="eyebrow">Operating history</p>
+    <section id="experience" aria-labelledby="experience-title" data-reveal>
+      <p class="eyebrow">Professional & research experience</p>
       <h2 id="experience-title">Experience</h2>
       <div class="timeline">
         {
@@ -47,7 +56,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section aria-labelledby="education-title" data-reveal>
+    <section id="research" aria-labelledby="research-title" data-reveal>
+      <p class="eyebrow">Research</p>
+      <h2 id="research-title">Submitted manuscripts</h2>
+      <ResearchList />
+    </section>
+
+    <section id="awards" aria-labelledby="awards-title" data-reveal>
+      <p class="eyebrow">Recognition</p>
+      <h2 id="awards-title">Hackathon awards</h2>
+      <div class="record-grid">
+        {
+          siteConfig.awards.map((award) => (
+            <article class="panel">
+              <p class="status-label">
+                {award.title} · {award.year}
+              </p>
+              <h3>
+                <a href={award.href}>{award.event}</a>
+              </h3>
+              <p>{award.detail}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="education" aria-labelledby="education-title" data-reveal>
       <p class="eyebrow">Foundation</p>
       <h2 id="education-title">Education</h2>
       <div class="record-grid">
@@ -65,8 +100,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section aria-labelledby="skills-title" data-reveal>
-      <p class="eyebrow">Tooling map</p>
+    <section id="skills" aria-labelledby="skills-title" data-reveal>
+      <p class="eyebrow">Technical skills</p>
       <h2 id="skills-title">Skills</h2>
       <div class="skill-grid">
         {
@@ -82,13 +117,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section class="leadership panel" aria-labelledby="leadership-title" data-reveal>
-      <p class="eyebrow">Community layer</p>
+    <section
+      id="leadership"
+      class="leadership panel"
+      aria-labelledby="leadership-title"
+      data-reveal
+    >
+      <p class="eyebrow">Leadership & service</p>
       <h2 id="leadership-title">IEEE leadership</h2>
       <p>
-        As Secretary of the IEEE Computer Society at the EUI Student Branch, I coordinate technical
-        events, workshops, and hackathons reaching more than 100 students, while maintaining the
-        documentation and communication that keeps the organization operating.
+        As Vice Head of the IEEE Computer Society at the EUI Student Branch (September
+        2026–present), I have delivered technical sessions on Docker and GitHub Actions and
+        contributed to organizing A3det Shai, an event with an audience of more than 500.
+      </p>
+      <p>
+        Previously, as Secretary (December 2024–August 2026), I coordinated technical events,
+        workshops, and hackathons reaching more than 100 students, and maintained meeting records,
+        reports, and communication with members and faculty advisors.
       </p>
       <p>
         Outside project delivery, I’m interested in systems programming, applied machine learning,
@@ -97,11 +142,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </p>
     </section>
 
+    <section class="panel" aria-labelledby="languages-title" data-reveal>
+      <p class="eyebrow">Languages</p>
+      <h2 id="languages-title">English proficiency</h2>
+      <p>Duolingo English Test: 115/160 · CEFR B2 · Taken 6 May 2025.</p>
+      <a href="https://certs.duolingo.com/3nzcfz1rk1r8p002">View English test credential</a>
+    </section>
+
     <section class="about__profiles panel" aria-labelledby="profiles-title" data-reveal>
       <p class="eyebrow">Public channels</p>
       <h2 id="profiles-title">Profiles and contact</h2>
       <p>Explore my public work and writing, or contact me directly by email.</p>
       <SocialLinks ariaLabel="About profile links" />
+      <a href="https://orcid.org/0009-0000-0790-9506">ORCID: 0009-0000-0790-9506</a>
     </section>
 
     <ContactCta />
@@ -166,7 +219,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin: 0;
     color: var(--color-accent);
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.875rem;
   }
   .timeline__item h3,
   .timeline__item strong,

@@ -24,12 +24,18 @@ npm run build
 npm run test:e2e
 ```
 
+To use an existing Chromium installation, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/absolute/path/to/chromium` when running the browser suite. Otherwise, install Playwright’s Chromium as usual.
+
 The Playwright suite covers route families, local assets and downloads, keyboard navigation, visible focus, WCAG A/AA axe checks, internal links, reduced motion, and responsive overflow at 390×844, 768×1024, and 1440×900.
 
 ## Content
 
+- Projects are grouped by engineering area using the `domain` field. Homepage selections use `featured` and `rank`. The project search supports shareable `?q=` queries and area hashes; all case studies and area links remain available without JavaScript.
+- `/research/` provides direct navigation to submitted manuscripts. The About page and research page share the same typed research records and presentation component.
+- Research manuscripts and hackathon awards live alongside experience in `src/data/site.ts`. Paper statuses are explicitly shown as submitted.
 - Projects and articles live in `src/content/` and are schema-validated by `src/content.config.ts`.
 - Site identity, education, experience, skills, public contact channels, and résumé records live in `src/data/site.ts`.
+- The complete CV source is `docs/resume/master-cv.tex`. Run `python scripts/build-resumes.py` with `pdflatex` installed to regenerate the complete PDF and both role-focused PDFs in `public/resume/`.
 - Credential metadata lives in `src/data/certifications.json`.
 - `scripts/build-certificate-previews.mjs` regenerates only the explicit allowlist of redacted WebP previews from locally available source PDFs. It never copies source certificate PDFs into the website.
 

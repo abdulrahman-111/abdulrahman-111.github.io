@@ -3,11 +3,18 @@ import { expect, test } from '@playwright/test';
 const representativeRoutes = [
   '/',
   '/projects/',
+  '/research/',
+  '/projects/rv32i-minios/',
+  '/projects/smart-attendance-system/',
+  '/projects/fifa-career-mode-ai-assistant/',
+  '/blog/cityfix-solvethe17-hackathon-journey/',
+  '/about/',
   '/blog/from-terraform-to-gitops/',
   '/blog/my-journey-learning-bash-scripting/',
   '/certifications/',
 ] as const;
 const viewports = [
+  { width: 320, height: 844 },
   { width: 390, height: 844 },
   { width: 768, height: 1024 },
   { width: 1440, height: 900 },

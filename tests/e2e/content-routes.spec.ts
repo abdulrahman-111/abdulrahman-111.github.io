@@ -8,7 +8,7 @@ test('project and article route families expose their evidence navigation', asyn
   await expect(page.getByRole('navigation', { name: 'On this page' })).toBeVisible();
 });
 
-test('Medium imports show their original source and the blog lists seven posts newest first', async ({
+test('Medium imports show their original source and the blog lists eight posts newest first', async ({
   page,
 }) => {
   await page.goto('/blog/my-simple-guide-to-git-and-github/');
@@ -19,9 +19,10 @@ test('Medium imports show their original source and the blog lists seven posts n
 
   await page.goto('/blog/');
   const articleHeadings = page.locator('[data-blog-item] .post-card h2');
-  await expect(articleHeadings).toHaveCount(7);
+  await expect(articleHeadings).toHaveCount(8);
   const titles = await articleHeadings.allTextContents();
   expect(titles).toEqual([
+    'From CityFix to First Place: Our SolveThe17 2.0 Journey',
     'From Terraform to GitOps: Building an End-to-End Kubernetes Delivery Pipeline',
     'Designing a Real-Time Multi-Model Smart Attendance Pipeline',
     'Building a Unix Shell in Stages: Femto to Micro',

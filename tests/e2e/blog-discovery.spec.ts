@@ -26,7 +26,7 @@ test('shows every article when JavaScript is disabled', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:4321/blog/');
-  await expect(page.locator('.post-card h2')).toHaveCount(7);
+  await expect(page.locator('.post-card h2')).toHaveCount(8);
   await expect(page.getByRole('link', { name: 'Kubernetes' }).first()).toBeVisible();
   await context.close();
 });

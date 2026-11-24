@@ -25,13 +25,21 @@ const groups = [
     <SectionHeader
       eyebrow="Verified training"
       title="Credentials organized by engineering domain."
-      description="Every preview is generated from an approved source and masks private identifiers before publication. Unknown dates are intentionally omitted."
+      description="Professional certifications and completed training across machine learning, cloud infrastructure, systems programming, and networking. Browse credential previews and available verification links."
     />
+    <nav class="section-nav" aria-label="Credential categories">
+      {groups.map(([category, label]) => <a href={`#${category}`}>{label}</a>)}
+    </nav>
     {
       groups.map(([category, label]) => {
         const entries = certifications.filter((entry) => entry.category === category);
         return (
-          <section class="credential-group" aria-labelledby={`${category}-title`} data-reveal>
+          <section
+            id={category}
+            class="credential-group"
+            aria-labelledby={`${category}-title`}
+            data-reveal
+          >
             <div class="credential-group__heading">
               <>
                 <p class="eyebrow">{String(entries.length).padStart(2, '0')} records</p>

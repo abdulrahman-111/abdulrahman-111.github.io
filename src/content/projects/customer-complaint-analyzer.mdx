@@ -1,0 +1,41 @@
+---
+title: AI-Powered Customer Complaint Analyzer
+summary: A Streamlit NLP workflow that classifies complaint intent, estimates sentiment, discovers topics, and generates a reply draft for human review.
+rank: 8
+featured: false
+period: '2026'
+domain: Machine learning
+tags:
+  - Python
+  - NLP
+  - scikit-learn
+  - Transformers
+  - Streamlit
+repoUrl: https://github.com/abdulrahman-111/NLP_customer_support_analyzer
+demoUrl: https://nlp-customer-support-analyzer.streamlit.app/
+collaborative: true
+contribution:
+  - Collaborated on the hybrid NLP system and its Streamlit workflow as an NTI capstone.
+---
+
+## The problem
+
+A complaint can contain several useful signals: what the customer wants, how they feel, and which recurring issue it belongs to. This NTI NLP capstone presents those signals together and optionally generates a context-aware reply draft.
+
+## My contribution
+
+I collaborated on the team system combining intent classification, sentiment analysis, topic discovery, and response generation, delivered through Streamlit.
+
+## Model pipeline
+
+The intent classifier uses TF-IDF and Logistic Regression trained on the Bitext customer-support dataset. Topic discovery uses Sentence Transformer embeddings from all-MiniLM-L6-v2 and K-Means with five clusters.
+
+The system integrates pretrained RoBERTa for sentiment and a configurable Qwen 2.5 instruction model for reply generation. These pretrained integrations are separate from the classifier and clustering artifacts trained for the project.
+
+## Deployment choices
+
+Streamlit caches heavy models to avoid loading them on every interaction. Reply generation is optional, which allows users to run the analysis without loading the larger language model. A training script regenerates the classifier, vectorizer, and clustering artifacts.
+
+## Evaluation and limitations
+
+The repository does not yet report a measured intent-classification test accuracy. Generated replies may contain placeholders or invented contact details, so the application presents them as drafts requiring human review.

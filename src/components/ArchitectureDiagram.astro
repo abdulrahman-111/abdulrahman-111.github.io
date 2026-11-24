@@ -11,6 +11,75 @@ interface Diagram {
 }
 
 const diagrams: Record<string, Diagram> = {
+  'virtual-meetings-system': {
+    label: 'Virtual Meetings application layers',
+    mode: 'groups',
+    nodes: [
+      { title: 'Participants', detail: 'Login · search · registration · feedback' },
+      { title: 'Event management', detail: 'Scheduling · capacity · dynamic waitlists' },
+      { title: 'Object-oriented design', detail: 'Event types · Factory · Singleton' },
+      { title: 'Persistence', detail: 'SQLite · users · events · registration records' },
+    ],
+  },
+  'rv32i-minios': {
+    label: 'RV32I and miniOS development status',
+    mode: 'groups',
+    nodes: [
+      { title: 'CPU implementation', detail: 'Completed · Logisim and Verilog' },
+      {
+        title: 'RTL components',
+        detail: 'Program counter · control unit · ALU decoder · instruction memory',
+      },
+      { title: 'Test programs', detail: 'Assembly and hexadecimal programs' },
+      {
+        title: 'miniOS preparation',
+        detail: 'Ongoing · CPU scheduling study before implementation',
+      },
+    ],
+  },
+  darsak: {
+    label: 'DarSak application layers',
+    mode: 'groups',
+    nodes: [
+      {
+        title: 'Learning workflows',
+        detail: 'Teacher profiles · enrollment · schedules · resources',
+      },
+      { title: 'Bilingual application', detail: 'Next.js · React · English and Arabic' },
+      { title: 'Backend services', detail: 'Supabase Auth · Postgres · Storage' },
+      { title: 'Administration', detail: 'Separate Next.js app · shared Supabase backend' },
+    ],
+  },
+  cityfix: {
+    label: 'CityCycle prototype components',
+    mode: 'groups',
+    nodes: [
+      { title: 'Citizen and collector', detail: 'Expo mobile app · citizen web portal' },
+      { title: 'Shared services', detail: 'FastAPI · pickups · weights · recorded payments' },
+      { title: 'Command Center', detail: 'Operations · bins · route previews' },
+      { title: 'Simulated telemetry', detail: 'Browser · PC simulator · ESP32 Wokwi prototypes' },
+    ],
+  },
+  'customer-complaint-analyzer': {
+    label: 'Complaint analysis model paths',
+    mode: 'groups',
+    nodes: [
+      { title: 'Intent', detail: 'TF-IDF · Logistic Regression' },
+      { title: 'Sentiment', detail: 'Pretrained RoBERTa' },
+      { title: 'Topics', detail: 'Sentence embeddings · K-Means' },
+      { title: 'Draft reply', detail: 'Optional Qwen 2.5 · human review' },
+    ],
+  },
+  taxiflow: {
+    label: 'TaxiFlow workflow documented in the CV',
+    mode: 'sequence',
+    nodes: [
+      { title: 'Prepare', detail: 'Data processing · feature engineering' },
+      { title: 'Train', detail: 'Model serialization · ONNX parity checks' },
+      { title: 'Serve', detail: 'FastAPI · validation · structured logs' },
+      { title: 'Package', detail: 'Multi-stage Docker · non-root execution · Compose' },
+    ],
+  },
   'end-to-end-devops-pipeline': {
     label: 'Delivery flow architecture',
     mode: 'sequence',

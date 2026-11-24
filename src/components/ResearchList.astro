@@ -1,0 +1,64 @@
+---
+import { siteConfig } from '../data/site';
+---
+
+<div class="research-list">
+  {
+    siteConfig.research.map((paper, index) => (
+      <article class="paper" id={`paper-${index + 1}`}>
+        <p class="status-label">
+          {paper.status} · Journal manuscript · {paper.year}
+        </p>
+        <h3>{paper.title}</h3>
+        <p class="paper__authors">
+          <strong>Authors:</strong> {paper.authors.join(', ')}
+        </p>
+        <p class="paper__contribution">{paper.contribution}</p>
+        <ul>
+          {paper.details.map((detail) => (
+            <li>{detail}</li>
+          ))}
+        </ul>
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  .research-list {
+    display: grid;
+    gap: var(--space-4);
+  }
+  .paper {
+    padding: clamp(1.25rem, 4vw, 2.25rem);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    scroll-margin-top: 7rem;
+  }
+  .paper h3 {
+    margin: var(--space-3) 0;
+    font-size: clamp(1.25rem, 3vw, 1.65rem);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .paper__authors,
+  .paper li {
+    color: var(--color-text-muted);
+  }
+  .paper__authors {
+    font-size: 0.95rem;
+  }
+  .paper__contribution {
+    padding-block: var(--space-3);
+    border-block: 1px solid var(--color-border);
+  }
+  .paper ul {
+    padding-left: 1.25rem;
+    margin-bottom: 0;
+  }
+  .paper li + li {
+    margin-top: var(--space-2);
+  }
+</style>

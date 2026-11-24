@@ -75,13 +75,20 @@ const isCurrentRoute = (href: string) =>
       if ((event.target as Element).closest('a')) closeNavigation();
     });
 
+    document.addEventListener('click', (event) => {
+      if (event.target instanceof Node && !header.contains(event.target)) closeNavigation();
+    });
+    document.addEventListener('focusin', (event) => {
+      if (event.target instanceof Node && !header.contains(event.target)) closeNavigation();
+    });
+    window.matchMedia('(min-width: 64rem)').addEventListener('change', closeNavigation);
     header.classList.add('is-navigation-enhanced');
   }
 </script>
 
 <style>
   .site-header {
-    position: sticky;
+    position: relative;
     top: 0;
     z-index: 20;
     border-bottom: 1px solid var(--color-border);
@@ -90,6 +97,10 @@ const isCurrentRoute = (href: string) =>
       background-color 220ms ease,
       box-shadow 220ms ease,
       backdrop-filter 220ms ease;
+  }
+
+  .site-header.is-navigation-enhanced {
+    position: sticky;
   }
 
   .site-header.is-scrolled {
@@ -104,6 +115,7 @@ const isCurrentRoute = (href: string) =>
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
+    flex-wrap: wrap;
   }
 
   .site-header__identity {
@@ -112,7 +124,7 @@ const isCurrentRoute = (href: string) =>
     gap: var(--space-2);
     color: var(--color-text);
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     font-weight: 700;
     text-decoration: none;
   }
@@ -136,7 +148,7 @@ const isCurrentRoute = (href: string) =>
     color: var(--color-text);
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     padding: 0.5rem 0.65rem;
   }
 
@@ -189,7 +201,7 @@ const isCurrentRoute = (href: string) =>
     padding: 0.55rem;
     color: var(--color-text);
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     text-decoration: none;
   }
 
@@ -200,6 +212,8 @@ const isCurrentRoute = (href: string) =>
 
   .site-header__nav a[aria-current='page'] {
     color: var(--color-accent);
+    background: var(--color-accent-soft);
+    border-radius: var(--radius);
   }
 
   .site-header__resume-action {
@@ -208,7 +222,10 @@ const isCurrentRoute = (href: string) =>
     color: var(--color-accent);
   }
 
-  @media (min-width: 48rem) {
+  @media (min-width: 64rem) {
+    .site-header {
+      position: sticky;
+    }
     .site-header__menu-toggle,
     .site-header.is-navigation-enhanced .site-header__menu-toggle {
       display: none;

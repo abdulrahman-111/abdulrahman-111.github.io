@@ -15,6 +15,7 @@ describe('siteConfig', () => {
       medium: 'https://medium.com/@agofficial',
     });
     expect(siteConfig.resumes.map(({ href }) => href)).toEqual([
+      '/resume/master-cv.pdf',
       '/resume/ml-ai-resume.pdf',
       '/resume/devops-cloud-resume.pdf',
     ]);

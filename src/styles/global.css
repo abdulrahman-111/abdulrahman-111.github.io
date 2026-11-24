@@ -6,6 +6,11 @@
 
 html {
   background: var(--color-canvas);
+  scroll-behavior: auto;
+  scroll-padding-top: calc(var(--site-header-height) + var(--space-4));
+}
+
+html.has-js {
   scroll-behavior: smooth;
 }
 
@@ -36,13 +41,51 @@ a:hover {
 }
 
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
   outline: 0.2rem solid var(--color-focus);
   outline-offset: 0.2rem;
 }
 
-button {
+button,
+input,
+select {
   font: inherit;
+}
+[hidden] {
+  display: none !important;
+}
+::selection {
+  background: var(--color-accent);
+  color: var(--color-canvas);
+}
+.section-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.section-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.section-nav a:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+.button-link.button-link--primary {
+  background: var(--color-accent);
+  color: var(--color-canvas);
+}
+.button-link.button-link--primary:hover {
+  background: var(--color-text-strong);
+  color: var(--color-canvas);
 }
 
 main:focus {
@@ -75,7 +118,7 @@ main:focus {
   margin: 0;
   color: var(--color-accent);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -87,6 +130,7 @@ main:focus {
   justify-content: center;
   min-height: 2.8rem;
   padding: 0.65rem 1rem;
+  border-radius: var(--radius);
   border: 1px solid var(--color-accent);
   background: transparent;
   color: var(--color-accent);
@@ -113,17 +157,18 @@ main:focus {
   color: var(--color-text);
 }
 
-.has-js [data-reveal] {
-  opacity: 0;
-  transform: translateY(1.25rem);
-  transition:
-    opacity 600ms ease var(--reveal-delay, 0ms),
-    transform 600ms ease var(--reveal-delay, 0ms);
+/* Content is visible before JavaScript runs and if animation setup fails. */
+.has-js [data-reveal].is-revealed {
+  animation: reveal-in 350ms ease;
 }
 
-.has-js [data-reveal].is-revealed {
-  opacity: 1;
-  transform: none;
+@keyframes reveal-in {
+  from {
+    transform: translateY(0.5rem);
+  }
+  to {
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,0 +1,37 @@
+---
+title: DarSak
+summary: A bilingual learning platform connecting students and teachers through enrollment, weekly schedules, learning groups, and shared resources.
+rank: 6
+featured: true
+period: Ongoing
+domain: Web applications
+tags:
+  - Next.js
+  - TypeScript
+  - Supabase
+  - PostgreSQL
+repoUrl: https://github.com/abdulrahman-111/DarSak
+demoUrl: https://darsak-platform.vercel.app
+collaborative: false
+contribution: []
+---
+
+## The problem
+
+Students need one place to discover teachers, join learning groups, follow their timetable, and find class materials. Teachers need a matching workspace to manage those groups and communicate updates. DarSak brings these workflows together in English and Arabic.
+
+## How it works
+
+Students browse teacher profiles and groups, request enrollment, and follow lessons in a weekly schedule. Teachers publish their profiles and groups, manage enrollment, schedule lessons, and share resources. Localized routes and messages support the two interface languages.
+
+## Engineering decisions
+
+The application uses Next.js 16, React 19, and TypeScript, with Supabase Auth, Postgres, and Storage for identity, structured data, and resources. Feature modules separate data access, domain logic, and interface code.
+
+A separate Next.js administrator application shares the Supabase project while keeping its own login session and Vercel deployment settings. Ordered database migrations and documented local setup make backend changes reproducible.
+
+## Delivery and validation
+
+The repository includes unit, database, and API integration coverage, along with type checks and application-boundary checks. Vercel handles hosting and scheduled jobs. The repository documents a local Supabase workflow, deployment configuration, and release checks.
+
+[Explore the architecture](https://github.com/abdulrahman-111/DarSak/blob/main/docs/ARCHITECTURE.md) or [view the screenshot gallery](https://github.com/abdulrahman-111/DarSak/blob/main/docs/screenshots/README.md).

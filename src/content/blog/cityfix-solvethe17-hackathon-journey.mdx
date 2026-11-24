@@ -1,0 +1,66 @@
+---
+title: 'From CityFix to First Place: Our SolveThe17 2.0 Journey'
+description: How our team connected citizen and collector workflows, recycling operations, and simulated smart bins in CityFix / CityCycle, winning first place at SolveThe17 2.0.
+published: 2026-11-24
+tags:
+  - Hackathon
+  - CityFix
+  - React Native
+  - Teamwork
+  - IoT simulation
+category: project-stories
+featured: true
+draft: false
+---
+
+Our CityFix / CityCycle team won **first place at SolveThe17 2.0**, hosted by the IEEE EUI Student Branch. The project brought together a mobile application, citizen-facing workflows, a Command Center, a shared backend, and smart-bin simulations around a practical question: how can a city connect the people reporting problems with the people doing the work?
+
+This is the engineering journey behind that result: the problem we focused on, my contributions, the prototype we built together, and what still needs work.
+
+## Starting with a city-wide idea
+
+CityFix is a smart-city platform for Egyptian cities. Its scope includes incident reporting, municipal service requests, operations, maps, and AI assistance. That is a broad vision, so explaining the platform requires a concrete workflow that people can follow.
+
+CityCycle, the waste-and-recycling part of CityFix, provided that workflow. It addresses the hackathon’s Track 4, “Unlocking Egypt’s Waste Economy,” by connecting households, collectors, recycling records, and smart-bin telemetry.
+
+A household requests a pickup. A collector accepts the job, weighs the material, and records what was paid. The household confirms the weight. The Command Center brings those activities together with bin readings and operational views.
+
+That sequence makes the platform easier to understand: each screen exists because someone needs to take a specific next step.
+
+## My part in the team
+
+I contributed to ideation, the mobile application, frontend development, smart-bin prototyping, and integration across the platform.
+
+My interface work used **React Native, Expo, and TypeScript** for citizen and collector workflows. Those interfaces needed to connect with the wider system: pickup requests, collector actions, material weights, and recorded payments all belong to the same recycling process.
+
+The backend, administrative screens, AI features, and hardware work were part of a team-built platform. My contribution connects to those components without making the whole system my individual work.
+
+## Turning features into a connected workflow
+
+The interesting engineering problem was the handoff between participants. A pickup request becomes a collector’s job; a weighing becomes a record the household can confirm; operational records become information the Command Center can inspect.
+
+CityFix uses a shared FastAPI backend for mobile, citizen-web, and Command Center clients. In CityCycle, a weighing keeps the district price that applied when the record was created. This makes the historical record meaningful even if the price list changes later.
+
+Payments are recorded amounts. The prototype does not transfer money or integrate a payment provider. That distinction matters when presenting what the application actually does.
+
+## Bringing smart bins into the prototype
+
+The hardware work includes browser and PC simulators, ESP32 Wokwi prototypes, and design documents. Simulated bin readings let us explore how fill levels could appear in the Command Center and support collection planning.
+
+This was simulation and prototyping work, rather than a validated physical installation. The repository also includes route-preview and fill-forecast components, with production behavior still requiring verification.
+
+For me, the useful lesson is to keep a demonstration understandable while being precise about its maturity. A simulated device can explain a data flow well, but that does not establish that a physical device has been built and tested.
+
+## The first-place result
+
+Winning first place at SolveThe17 2.0 is a milestone I am proud to share. It recognizes a collaborative project that brought software, operational workflows, and hardware prototyping into one smart-city concept.
+
+The award is also a useful point to pause and examine the work. The strongest portfolio story is more than a list of technologies: it explains the problem, follows the user’s workflow, identifies each contribution, and shows which parts are tested, simulated, or still incomplete.
+
+## What comes next
+
+The repository documents backend tests for recycling operations, bins, route optimization, and forecasting. The mobile and citizen-web interfaces use mock mode by default, and live end-to-end behavior remains to be independently verified.
+
+The next validation steps are to exercise the complete flow against the backend, verify deployment behavior, and test a physical smart-bin build before making field-readiness claims. Those are future steps, rather than completed outcomes.
+
+[Explore the CityFix / CityCycle case study](/projects/cityfix/) for my contribution and the prototype’s architecture, or [browse the repository](https://github.com/abdulrahman-111/cityFix) for the implementation and evidence notes.
